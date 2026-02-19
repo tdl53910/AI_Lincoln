@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+.env.*
+*.log
+logs/
+.DS_Store
+node_modules/
+*.wav
+*.mp3
+/tmp/

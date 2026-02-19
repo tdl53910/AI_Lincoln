@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lincoln Language Evolution — Corpus Visualization</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+:root {
+  --parchment:      #f4edd8;
+  --parchment-dark: #e8dfc4;
+  --ink:            #1a1208;
+  --ink-faded:      #3d2e1a;
+  --ink-light:      #6b5535;
+  --burgundy:       #5c1a1a;
+  --burgundy-light: #7a2828;
+  --navy:           #0d1f3c;
+  --navy-light:     #1a3a6b;
+  --brass:          #b8860b;
+  --brass-light:    #d4a017;
+  --brass-pale:     #f0d080;
+  --border-heavy:   #8b6914;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Lora', Georgia, serif;
+  background: var(--navy);
+  color: var(--parchment);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+.viz-header {
+  background: linear-gradient(180deg, #060f1e 0%, var(--navy) 100%);
+  border-bottom: 2px solid var(--brass);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.viz-header-left { display: flex; align-items: center; gap: 16px; }
+.viz-back {
+  padding: 6px 14px;
+  border: 1.5px solid var(--brass);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--brass-pale);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+.viz-back:hover { background: rgba(184,134,11,0.15); }
+.viz-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--parchment);
+  letter-spacing: 0.02em;
+}
+.viz-subtitle {
+  font-family: 'Lora', serif;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--brass);
+  margin-top: 2px;
+}
+
+/* ── Controls bar ── */
+.controls-bar {
+  background: rgba(0,0,0,0.3);
+  border-bottom: 1px solid rgba(184,134,11,0.2);
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.control-group { display: flex; align-items: center; gap: 8px; }
+.control-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+.color-mode-btn {
+  padding: 5px 14px;
+  border: 1.5px solid rgba(184,134,11,0.4);
+  border-radius: 2px;
+  background: transparent;
+  color: rgba(240,208,128,0.6);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.color-mode-btn:hover { border-color: var(--brass); color: var(--brass-pale); }
+.color-mode-btn.active {
+  background: var(--brass);
+  border-color: var(--brass);
+  color: var(--navy);
+}
+.divider { width: 1px; height: 24px; background: rgba(184,134,11,0.2); }
+.search-input {
+  padding: 5px 12px;
+  background: rgba(255,255,255,0.07);
+  border: 1.5px solid rgba(184,134,11,0.3);
+  border-radius: 2px;
+  color: var(--parchment);
+  font-family: 'Lora', serif;
+  font-size: 12px;
+  width: 200px;
+  transition: border-color 0.15s;
+}
+.search-input:focus { outline: none; border-color: var(--brass); }
+.search-input::placeholder { color: rgba(240,208,128,0.35); font-style: italic; }
+.doc-count {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px;
+  color: rgba(184,134,11,0.5);
+  letter-spacing: 0.06em;
+  margin-left: auto;
+}
+
+/* ── Main layout ── */
+.viz-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── Plot area ── */
+.plot-wrap {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+}
+#plot { width: 100%; height: 100%; }
+
+/* ── Legend panel ── */
+.legend-panel {
+  width: 240px;
+  background: rgba(0,0,0,0.4);
+  border-left: 1px solid rgba(184,134,11,0.2);
+  overflow-y: auto;
+  padding: 16px;
+  flex-shrink: 0;
+}
+.legend-section { margin-bottom: 20px; }
+.legend-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brass);
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(184,134,11,0.2);
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.1s;
+}
+.legend-item:hover { background: rgba(184,134,11,0.08); }
+.legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.legend-text {
+  font-family: 'Lora', serif;
+  font-size: 11px;
+  color: rgba(240,208,128,0.8);
+  line-height: 1.3;
+}
+.legend-count {
+  margin-left: auto;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 10px;
+  color: rgba(184,134,11,0.5);
+}
+
+/* Year gradient bar */
+.year-gradient {
+  width: 100%;
+  height: 16px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #2563eb, #7c3aed, #dc2626);
+  margin: 6px 0 4px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.year-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 10px;
+  color: rgba(184,134,11,0.6);
+}
+
+/* ── Doc panel (right side, appears on click) ── */
+.doc-panel {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 320px;
+  background: linear-gradient(180deg, #0d1f3c 0%, #060f1e 100%);
+  border: 1.5px solid var(--brass);
+  border-radius: 4px;
+  box-shadow: 4px 6px 24px rgba(0,0,0,0.7);
+  z-index: 100;
+  display: none;
+  overflow: hidden;
+}
+.doc-panel.visible { display: block; }
+.doc-panel-header {
+  padding: 12px 14px;
+  background: rgba(184,134,11,0.12);
+  border-bottom: 1px solid rgba(184,134,11,0.3);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+.doc-panel-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--brass-pale);
+  line-height: 1.3;
+  flex: 1;
+}
+.doc-panel-close {
+  background: transparent;
+  border: none;
+  color: var(--brass);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.doc-panel-close:hover { color: var(--parchment); }
+.doc-panel-body { padding: 14px; }
+.doc-meta-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.doc-badge {
+  padding: 2px 8px;
+  border: 1px solid rgba(184,134,11,0.4);
+  border-radius: 2px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+.doc-quote {
+  font-family: 'Lora', serif;
+  font-style: italic;
+  font-size: 12px;
+  color: rgba(240,220,180,0.85);
+  line-height: 1.6;
+  border-left: 2px solid var(--brass);
+  padding-left: 10px;
+  margin-bottom: 12px;
+}
+.doc-themes {
+  font-family: 'Lora', serif;
+  font-size: 11px;
+  color: rgba(184,134,11,0.7);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+.doc-principle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px;
+  color: rgba(240,208,128,0.6);
+  margin-bottom: 12px;
+  padding: 6px 8px;
+  background: rgba(184,134,11,0.08);
+  border-radius: 2px;
+}
+.doc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: linear-gradient(180deg, var(--burgundy-light, #7a2828) 0%, var(--burgundy, #5c1a1a) 100%);
+  border: 1.5px solid var(--brass);
+  border-radius: 2px;
+  color: var(--brass-pale);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+.doc-link:hover { background: #7a2828; }
+
+/* ── Ask btn ── */
+.doc-ask-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: linear-gradient(180deg, var(--navy-light, #1a3a6b) 0%, var(--navy, #0d1f3c) 100%);
+  border: 1.5px solid var(--brass);
+  border-radius: 2px;
+  color: var(--brass-pale);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-left: 8px;
+}
+.doc-ask-btn:hover { background: #1a3a6b; }
+
+/* ── Annotation overlay ── */
+.plot-annotation {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  font-family: 'Lora', serif;
+  font-style: italic;
+  font-size: 11px;
+  color: rgba(184,134,11,0.45);
+  pointer-events: none;
+}
+</style>
+</head>
+<body>
+
+<header class="viz-header">
+  <div class="viz-header-left">
+    <a class="viz-back" href="/" onclick="window.parent && window.parent.postMessage('navigate-home','*')">← Back to Lincoln AI</a>
+    <div>
+      <div class="viz-title">Constitutional Language Evolution, 1838–1865</div>
+      <div class="viz-subtitle">UMAP projection of TF-IDF / LSA semantic space · 37 primary source documents</div>
+    </div>
+  </div>
+</header>
+
+<div class="controls-bar">
+  <div class="control-group">
+    <span class="control-label">Color by</span>
+    <button class="color-mode-btn active" onclick="setColorMode('year')" id="btn-year">Chronology</button>
+    <button class="color-mode-btn" onclick="setColorMode('type')" id="btn-type">Document Type</button>
+    <button class="color-mode-btn" onclick="setColorMode('principle')" id="btn-principle">Constitutional Principle</button>
+  </div>
+  <div class="divider"></div>
+  <div class="control-group">
+    <span class="control-label">Filter</span>
+    <input class="search-input" id="search-input" placeholder="Search documents…" oninput="filterDocs(this.value)">
+  </div>
+  <span class="doc-count" id="doc-count">37 documents</span>
+</div>
+
+<div class="viz-body">
+  <div class="plot-wrap">
+    <div id="plot"></div>
+    <div class="plot-annotation">Hover to inspect · Click to open document</div>
+
+    <!-- Document detail panel -->
+    <div class="doc-panel" id="doc-panel">
+      <div class="doc-panel-header">
+        <div class="doc-panel-title" id="dp-title"></div>
+        <button class="doc-panel-close" onclick="closeDocPanel()">✕</button>
+      </div>
+      <div class="doc-panel-body">
+        <div class="doc-meta-row">
+          <span class="doc-badge" id="dp-date"></span>
+          <span class="doc-badge" id="dp-type"></span>
+        </div>
+        <div class="doc-quote" id="dp-quote"></div>
+        <div class="doc-themes" id="dp-themes"></div>
+        <div class="doc-principle" id="dp-principle"></div>
+        <div style="display:flex;align-items:center;gap:0;">
+          <a class="doc-link" id="dp-link" href="#" target="_blank">↗ Primary Source</a>
+          <button class="doc-ask-btn" id="dp-ask" onclick="askAboutDoc()">🎩 Ask Lincoln</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend-panel" id="legend-panel">
+    <div id="legend-content"></div>
+  </div>
+</div>
+
+<script>
+// ── Data (injected by server) ──────────────────────────────
+let VIZ_DATA = null;
+let colorMode = 'year';
+let filteredIds = null;
+let selectedDoc = null;
+
+// ── Color schemes ──────────────────────────────────────────
+const TYPE_COLORS = {
+  'Speech':             '#e8a838',
+  'Debate':             '#f97316',
+  'Letter':             '#22c55e',
+  'Proclamation':       '#a855f7',
+  'Executive Order':    '#ec4899',
+  'Inaugural Address':  '#06b6d4',
+  'Message to Congress':'#3b82f6',
+  'State of the Union': '#6366f1',
+  'Fragment/Note':      '#84cc16',
+};
+
+const PRINCIPLE_COLORS = {
+  'CP002': '#ef4444', 'CP003': '#f97316', 'CP004': '#eab308',
+  'CP005': '#22c55e', 'CP006': '#06b6d4', 'CP007': '#3b82f6',
+  'CP008': '#8b5cf6', 'CP009': '#ec4899', 'CP011': '#f59e0b',
+  'CP012': '#10b981', 'CP013': '#6366f1', 'CP014': '#84cc16',
+  'CP015': '#e879f9', 'None':  '#6b7280',
+};
+
+function yearToColor(year) {
+  const t = (year - 1838) / (1865 - 1838);
+  // Blue (1838) → Purple (mid) → Red (1865)
+  const r = Math.round(37  + t * (220 - 37));
+  const g = Math.round(99  + t * (38  - 99));
+  const b = Math.round(235 + t * (38  - 235));
+  return `rgb(${r},${g},${b})`;
+}
+
+// ── Fetch data & init ──────────────────────────────────────
+async function init() {
+  const resp = await fetch('/api/viz_data');
+  VIZ_DATA = await resp.json();
+  buildPlot();
+  buildLegend();
+}
+
+// ── Build Plotly traces ────────────────────────────────────
+function buildPlot() {
+  const docs = VIZ_DATA.docs;
+  const active = filteredIds
+    ? docs.filter(d => filteredIds.has(d.id))
+    : docs;
+
+  // Group by color key
+  const groups = {};
+  active.forEach(d => {
+    let key, color;
+    if (colorMode === 'year') {
+      key = d.year;
+      color = yearToColor(d.year);
+    } else if (colorMode === 'type') {
+      key = d.type;
+      color = TYPE_COLORS[d.type] || '#94a3b8';
+    } else {
+      key = d.principle;
+      color = PRINCIPLE_COLORS[d.principle] || '#6b7280';
+    }
+    if (!groups[key]) groups[key] = { key, color, docs: [] };
+    groups[key].docs.push(d);
+  });
+
+  // One trace per group
+  const traces = Object.values(groups).map(g => ({
+    type: 'scatter',
+    mode: 'markers+text',
+    x: g.docs.map(d => d.x),
+    y: g.docs.map(d => d.y),
+    text: g.docs.map(d => {
+      // Short label for points
+      const t = d.title.replace(/\(.*?\)/g,'').trim();
+      return t.length > 20 ? t.slice(0,18)+'…' : t;
+    }),
+    textposition: 'top center',
+    textfont: {
+      family: 'Cormorant Garamond, Georgia, serif',
+      size: 9,
+      color: 'rgba(240,208,128,0.55)'
+    },
+    marker: {
+      size: 14,
+      color: g.color,
+      line: { color: 'rgba(240,208,128,0.4)', width: 1.5 },
+      opacity: 0.88,
+    },
+    name: colorMode === 'year'
+      ? String(g.key)
+      : colorMode === 'type'
+        ? g.key
+        : (VIZ_DATA.principles[g.key] || g.key),
+    customdata: g.docs.map(d => d.id),
+    hovertemplate:
+      '<b>%{meta}</b><br>' +
+      '%{hovertext}<br>' +
+      '<extra></extra>',
+    meta: g.docs.map(d => d.title),
+    hovertext: g.docs.map(d =>
+      `${d.date}  ·  ${d.type}<br><i>${d.themes.split(';')[0].trim()}</i>`
+    ),
+  }));
+
+  // Derive axis labels from data
+  const xLabel = VIZ_DATA.axis_x_label || 'Semantic Dimension 1';
+  const yLabel = VIZ_DATA.axis_y_label || 'Semantic Dimension 2';
+  const svdX   = (VIZ_DATA.svd_dim1_terms || []).slice(0,5).join(' · ');
+  const svdY   = (VIZ_DATA.svd_dim2_terms || []).slice(0,5).join(' · ');
+
+  const layout = {
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor:  'rgba(13,31,60,0.6)',
+    font: { family: 'Lora, Georgia, serif', color: 'rgba(240,208,128,0.7)' },
+    margin: { t: 40, r: 40, b: 80, l: 90 },
+    xaxis: {
+      showgrid: true,
+      gridcolor: 'rgba(184,134,11,0.07)',
+      gridwidth: 1,
+      zeroline: true,
+      zerolinecolor: 'rgba(184,134,11,0.2)',
+      zerolinewidth: 1,
+      showticklabels: false,
+      title: {
+        text: `<b>← Speeches & Debates</b>  ·  Rhetorical–Executive Axis  ·  <b>Executive Orders & Messages →</b><br><span style="font-size:10px;font-style:italic;opacity:0.6;">Key terms: ${svdX}</span>`,
+        font: { family: 'Cormorant Garamond, Georgia, serif', size: 12, color: 'rgba(240,208,128,0.65)' },
+        standoff: 12,
+      },
+      showline: true,
+      linecolor: 'rgba(184,134,11,0.3)',
+    },
+    yaxis: {
+      showgrid: true,
+      gridcolor: 'rgba(184,134,11,0.07)',
+      gridwidth: 1,
+      zeroline: true,
+      zerolinecolor: 'rgba(184,134,11,0.2)',
+      zerolinewidth: 1,
+      showticklabels: false,
+      title: {
+        text: `<b>↓ Proclamations & Orders</b>  ·  Doctrinal–Deliberative Axis  ·  <b>↑ Debates & Natural Rights</b><br><span style="font-size:10px;font-style:italic;opacity:0.6;">Key terms: ${svdY}</span>`,
+        font: { family: 'Cormorant Garamond, Georgia, serif', size: 12, color: 'rgba(240,208,128,0.65)' },
+        standoff: 16,
+      },
+      showline: true,
+      linecolor: 'rgba(184,134,11,0.3)',
+    },
+    showlegend: false,
+    hovermode: 'closest',
+    dragmode: 'pan',
+    // Quadrant annotations
+    annotations: [
+      {
+        x: 0.02, y: 0.98, xref: 'paper', yref: 'paper',
+        text: 'Early Speeches<br>& Natural Rights',
+        showarrow: false,
+        font: { family: 'Cormorant Garamond', size: 10, color: 'rgba(240,208,128,0.25)' },
+        align: 'left',
+      },
+      {
+        x: 0.98, y: 0.98, xref: 'paper', yref: 'paper',
+        text: 'Executive Orders<br>& Debates',
+        showarrow: false,
+        font: { family: 'Cormorant Garamond', size: 10, color: 'rgba(240,208,128,0.25)' },
+        align: 'right',
+      },
+      {
+        x: 0.02, y: 0.02, xref: 'paper', yref: 'paper',
+        text: 'Speeches &<br>Proclamations',
+        showarrow: false,
+        font: { family: 'Cormorant Garamond', size: 10, color: 'rgba(240,208,128,0.25)' },
+        align: 'left',
+      },
+      {
+        x: 0.98, y: 0.02, xref: 'paper', yref: 'paper',
+        text: 'War Powers &<br>Executive Orders',
+        showarrow: false,
+        font: { family: 'Cormorant Garamond', size: 10, color: 'rgba(240,208,128,0.25)' },
+        align: 'right',
+      },
+    ],
+  };
+
+  const config = {
+    responsive: true,
+    displayModeBar: true,
+    modeBarButtonsToRemove: ['select2d','lasso2d','autoScale2d','hoverClosestCartesian','hoverCompareCartesian','toggleSpikelines'],
+    displaylogo: false,
+    scrollZoom: true,
+    toImageButtonOptions: { format: 'png', filename: 'lincoln-corpus-viz' },
+  };
+
+  Plotly.react('plot', traces, layout, config);
+
+  // Click handler
+  document.getElementById('plot').on('plotly_click', data => {
+    const pt = data.points[0];
+    const docId = pt.customdata;
+    const doc = VIZ_DATA.docs.find(d => d.id === docId);
+    if (doc) openDocPanel(doc);
+  });
+}
+
+// ── Legend ─────────────────────────────────────────────────
+function buildLegend() {
+  const panel = document.getElementById('legend-content');
+  panel.innerHTML = '';
+
+  if (colorMode === 'year') {
+    panel.innerHTML = `
+      <div class="legend-section">
+        <div class="legend-title">Chronological Range</div>
+        <div class="year-gradient"></div>
+        <div class="year-labels"><span>1838</span><span>1851</span><span>1865</span></div>
+        <div style="margin-top:14px;font-family:'Lora',serif;font-size:11px;color:rgba(240,208,128,0.55);line-height:1.6;">
+          Blue tones = pre-presidential<br>
+          Purple = early war years<br>
+          Red = late war & Reconstruction
+        </div>
+      </div>`;
+  } else if (colorMode === 'type') {
+    const types = {};
+    VIZ_DATA.docs.forEach(d => {
+      types[d.type] = (types[d.type]||0)+1;
+    });
+    const items = Object.entries(types).sort((a,b)=>b[1]-a[1]);
+    panel.innerHTML = `<div class="legend-section">
+      <div class="legend-title">Document Type</div>
+      ${items.map(([t,n]) => `
+        <div class="legend-item" onclick="filterByType('${t}')">
+          <div class="legend-swatch" style="background:${TYPE_COLORS[t]||'#94a3b8'}"></div>
+          <span class="legend-text">${t}</span>
+          <span class="legend-count">${n}</span>
+        </div>`).join('')}
+      <div class="legend-item" onclick="clearFilter()" style="margin-top:6px;">
+        <span class="legend-text" style="color:rgba(184,134,11,0.5);font-style:italic;">Show all</span>
+      </div>
+    </div>`;
+  } else {
+    const principles = {};
+    VIZ_DATA.docs.forEach(d => {
+      const name = VIZ_DATA.principles[d.principle] || d.principle;
+      principles[d.principle] = { name, count: (principles[d.principle]?.count||0)+1 };
+    });
+    const items = Object.entries(principles).sort((a,b)=>b[1].count-a[1].count);
+    panel.innerHTML = `<div class="legend-section">
+      <div class="legend-title">Constitutional Principle</div>
+      ${items.map(([pid,{name,count}]) => `
+        <div class="legend-item" onclick="filterByPrinciple('${pid}')">
+          <div class="legend-swatch" style="background:${PRINCIPLE_COLORS[pid]||'#6b7280'}"></div>
+          <span class="legend-text" style="font-size:10px;">${pid}: ${name}</span>
+          <span class="legend-count">${count}</span>
+        </div>`).join('')}
+      <div class="legend-item" onclick="clearFilter()" style="margin-top:6px;">
+        <span class="legend-text" style="color:rgba(184,134,11,0.5);font-style:italic;">Show all</span>
+      </div>
+    </div>`;
+  }
+}
+
+// ── Color mode toggle ──────────────────────────────────────
+function setColorMode(mode) {
+  colorMode = mode;
+  ['year','type','principle'].forEach(m => {
+    document.getElementById('btn-'+m).classList.toggle('active', m === mode);
+  });
+  buildPlot();
+  buildLegend();
+}
+
+// ── Filter ─────────────────────────────────────────────────
+function filterDocs(q) {
+  if (!q.trim()) { filteredIds = null; }
+  else {
+    const lq = q.toLowerCase();
+    filteredIds = new Set(
+      VIZ_DATA.docs
+        .filter(d => d.title.toLowerCase().includes(lq) || d.themes.toLowerCase().includes(lq))
+        .map(d => d.id)
+    );
+  }
+  document.getElementById('doc-count').textContent =
+    (filteredIds ? filteredIds.size : VIZ_DATA.docs.length) + ' documents';
+  buildPlot();
+}
+
+function filterByType(type) {
+  filteredIds = new Set(VIZ_DATA.docs.filter(d => d.type === type).map(d => d.id));
+  document.getElementById('doc-count').textContent = filteredIds.size + ' documents';
+  buildPlot();
+}
+
+function filterByPrinciple(pid) {
+  filteredIds = new Set(VIZ_DATA.docs.filter(d => d.principle === pid).map(d => d.id));
+  document.getElementById('doc-count').textContent = filteredIds.size + ' documents';
+  buildPlot();
+}
+
+function clearFilter() {
+  filteredIds = null;
+  document.getElementById('search-input').value = '';
+  document.getElementById('doc-count').textContent = VIZ_DATA.docs.length + ' documents';
+  buildPlot();
+}
+
+// ── Doc panel ──────────────────────────────────────────────
+function openDocPanel(doc) {
+  selectedDoc = doc;
+  document.getElementById('dp-title').textContent = doc.title;
+  document.getElementById('dp-date').textContent  = doc.date;
+  document.getElementById('dp-type').textContent  = doc.type;
+  document.getElementById('dp-quote').textContent = doc.quote ? '"' + doc.quote.slice(0,200) + (doc.quote.length>200?'…':'"') : '';
+  document.getElementById('dp-themes').textContent = '🏛 ' + doc.themes;
+  const pname = VIZ_DATA.principles[doc.principle] || doc.principle;
+  document.getElementById('dp-principle').textContent = '⚖ Dominant principle: ' + doc.principle + ' — ' + pname;
+  const link = document.getElementById('dp-link');
+  if (doc.url) { link.href = doc.url; link.style.display = 'inline-flex'; }
+  else { link.style.display = 'none'; }
+  document.getElementById('doc-panel').classList.add('visible');
+}
+
+function closeDocPanel() {
+  document.getElementById('doc-panel').classList.remove('visible');
+  selectedDoc = null;
+}
+
+function askAboutDoc() {
+  if (!selectedDoc) return;
+  const q = `Mr. President, regarding your ${selectedDoc.title} (${selectedDoc.date}), what was your core constitutional argument and why did you judge it necessary?`;
+  // Navigate parent to main app with pre-filled question
+  try {
+    window.parent.postMessage({ type: 'ask-lincoln', question: q }, '*');
+  } catch(e) {}
+  // Also open in new tab as fallback
+  window.open(`/?q=${encodeURIComponent(q)}`, '_blank');
+}
+
+// ── Init ───────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+fastapi>=0.110.0
+uvicorn>=0.29.0
+openai>=1.14.0
+edge-tts>=6.1.9
+python-multipart>=0.0.9
+umap-learn>=0.5.6
+scikit-learn>=1.4.0
+numpy>=1.26.0

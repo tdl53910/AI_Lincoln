@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lincoln Constitutional AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════
+   LINCOLN CONSTITUTIONAL AI — PERIOD AESTHETIC v2
+   Library of Congress meets 1860s government document
+═══════════════════════════════════════════════════════ */
+
+:root {
+  --parchment:       #f4edd8;
+  --parchment-dark:  #e8dfc4;
+  --parchment-deep:  #d9cba8;
+  --ink:             #1a1208;
+  --ink-faded:       #3d2e1a;
+  --ink-light:       #6b5535;
+  --burgundy:        #5c1a1a;
+  --burgundy-light:  #7a2828;
+  --burgundy-deep:   #3d0f0f;
+  --navy:            #0d1f3c;
+  --navy-light:      #1a3a6b;
+  --brass:           #b8860b;
+  --brass-light:     #d4a017;
+  --brass-pale:      #f0d080;
+  --sepia:           #704214;
+  --sepia-light:     #a0622a;
+  --border-heavy:    #8b6914;
+  --border-light:    #c9a84c;
+  --shadow-warm:     rgba(90, 50, 10, 0.25);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Lora', Georgia, serif;
+  background: var(--parchment);
+  color: var(--ink);
+  min-height: 100vh;
+  /* Aged paper texture via CSS */
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+/* ── Ornamental border frame ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  border: 12px solid transparent;
+  border-image: repeating-linear-gradient(
+    45deg,
+    var(--brass) 0px, var(--brass) 4px,
+    transparent 4px, transparent 12px,
+    var(--brass) 12px, var(--brass) 16px
+  ) 12;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.35;
+}
+
+/* ══════════════════════════════════════════════
+   MASTHEAD
+══════════════════════════════════════════════ */
+.masthead {
+  background: linear-gradient(180deg, var(--navy) 0%, var(--burgundy-deep) 100%);
+  border-bottom: 4px double var(--brass);
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+.masthead::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255,255,255,0.015) 2px,
+    rgba(255,255,255,0.015) 4px
+  );
+  pointer-events: none;
+}
+
+.masthead-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 28px 32px 20px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Lincoln portrait ── */
+.portrait-wrap {
+  flex-shrink: 0;
+  position: relative;
+  width: 110px;
+  height: 130px;
+  cursor: default;
+}
+.portrait-frame {
+  width: 110px;
+  height: 130px;
+  border: 3px solid var(--brass);
+  box-shadow:
+    0 0 0 1px var(--brass-pale),
+    0 0 0 5px var(--burgundy-deep),
+    0 0 0 6px var(--brass),
+    4px 4px 20px rgba(0,0,0,0.6);
+  overflow: hidden;
+  position: relative;
+  background: #2a1a0a;
+}
+.portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  filter: sepia(0.7) contrast(1.1) brightness(0.9);
+  animation: sepia-flicker 12s ease-in-out infinite, portrait-pulse 10s ease-in-out infinite;
+  display: block;
+}
+/* Sepia flicker — subtle, not distracting */
+@keyframes sepia-flicker {
+  0%,100% { filter: sepia(0.7) contrast(1.1) brightness(0.9); }
+  15%      { filter: sepia(0.75) contrast(1.12) brightness(0.88); }
+  30%      { filter: sepia(0.65) contrast(1.08) brightness(0.92); }
+  60%      { filter: sepia(0.72) contrast(1.1) brightness(0.9); }
+  85%      { filter: sepia(0.68) contrast(1.13) brightness(0.87); }
+}
+/* Slow scale pulse 1.0 → 1.02 over 10s */
+@keyframes portrait-pulse {
+  0%,100% { transform: scale(1.0); }
+  50%     { transform: scale(1.02); }
+}
+/* Speaking animation */
+.portrait-img.speaking {
+  animation: sepia-flicker 0.8s ease-in-out infinite, portrait-speak 0.4s ease-in-out infinite;
+}
+@keyframes portrait-speak {
+  0%,100% { transform: scale(1.0) translateY(0); }
+  50%     { transform: scale(1.01) translateY(-1px); }
+}
+/* Vignette overlay */
+.portrait-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.45) 100%);
+  pointer-events: none;
+}
+/* Eye-tracking overlay (invisible, for JS) */
+.portrait-eyes {
+  position: absolute;
+  top: 35%;
+  left: 20%;
+  width: 60%;
+  height: 15%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── Masthead text ── */
+.masthead-text { flex: 1; }
+.masthead-seal {
+  font-size: 11px;
+  font-family: 'Cormorant Garamond', serif;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--brass-light);
+  margin-bottom: 6px;
+}
+.masthead-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--parchment);
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+}
+.masthead-subtitle {
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--brass-pale);
+  margin-top: 6px;
+  letter-spacing: 0.04em;
+}
+.masthead-rule {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--brass-light), transparent);
+  margin: 10px 0 8px;
+}
+.masthead-byline {
+  font-size: 11px;
+  color: var(--parchment-deep);
+  font-family: 'Lora', serif;
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+}
+
+/* ── Mode tabs (folder tabs) ── */
+.tab-bar {
+  display: flex;
+  gap: 0;
+  padding: 0 32px;
+  align-items: flex-end;
+  max-width: 960px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+.tab-btn {
+  padding: 10px 24px 8px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 2px solid var(--brass);
+  border-bottom: none;
+  background: var(--burgundy-deep);
+  color: var(--brass-pale);
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  top: 2px;
+  border-radius: 4px 4px 0 0;
+  margin-right: 4px;
+}
+.tab-btn:hover { background: var(--burgundy-light); color: var(--brass-light); }
+.tab-btn.active {
+  background: var(--parchment);
+  color: var(--burgundy);
+  border-color: var(--border-heavy);
+  top: 0;
+  padding-bottom: 10px;
+  z-index: 2;
+}
+
+/* ══════════════════════════════════════════════
+   MAIN CONTENT
+══════════════════════════════════════════════ */
+.main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 28px 32px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ── Mode context card ── */
+.mode-context {
+  background: linear-gradient(135deg, var(--parchment-dark) 0%, var(--parchment) 100%);
+  border: 2px solid var(--border-heavy);
+  border-top: 4px solid var(--burgundy);
+  border-radius: 0 4px 4px 4px;
+  padding: 20px 24px;
+  position: relative;
+  box-shadow: 2px 3px 12px var(--shadow-warm);
+}
+.mode-context::before {
+  content: '§';
+  position: absolute;
+  top: -14px;
+  left: 20px;
+  background: var(--parchment);
+  padding: 0 6px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  color: var(--burgundy);
+  font-weight: 600;
+}
+.mode-context-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--burgundy);
+  margin-bottom: 6px;
+}
+.mode-context-desc {
+  font-size: 13.5px;
+  color: var(--ink-faded);
+  line-height: 1.65;
+  font-style: italic;
+}
+.mode-stamp {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 3px 10px;
+  border: 1.5px solid var(--burgundy);
+  border-radius: 2px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--burgundy);
+  opacity: 0.75;
+}
+
+/* ── Query section ── */
+.query-section { display: flex; flex-direction: column; gap: 14px; }
+.query-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink-faded);
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.query-label::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 1px;
+  background: var(--brass);
+}
+.query-input-row { display: flex; gap: 12px; align-items: flex-end; }
+.query-textarea {
+  flex: 1;
+  min-height: 90px;
+  resize: vertical;
+  font-family: 'Lora', serif;
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 14px 16px;
+  background: #fdf8ee;
+  border: 1.5px solid var(--parchment-deep);
+  border-bottom: 2px solid var(--brass);
+  border-radius: 2px;
+  color: var(--ink);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.06);
+}
+.query-textarea:focus {
+  outline: none;
+  border-color: var(--brass);
+  border-bottom-color: var(--burgundy);
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.08), 0 0 0 2px rgba(184,134,11,0.15);
+}
+.query-textarea::placeholder { color: var(--ink-light); font-style: italic; }
+
+/* ── Submit button ── */
+.ask-btn {
+  padding: 12px 22px;
+  background: linear-gradient(180deg, var(--burgundy-light) 0%, var(--burgundy-deep) 100%);
+  border: 2px solid var(--brass);
+  border-radius: 2px;
+  color: var(--brass-pale);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  align-self: flex-end;
+  box-shadow: 2px 2px 8px var(--shadow-warm);
+  height: 48px;
+}
+.ask-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, var(--burgundy) 0%, var(--burgundy-light) 100%);
+  box-shadow: 3px 3px 12px var(--shadow-warm);
+  transform: translateY(-1px);
+}
+.ask-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+/* ── Quill loader ── */
+.quill-loader {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-light);
+}
+.quill-loader.visible { display: flex; }
+.quill-icon {
+  font-size: 20px;
+  animation: quill-write 1.2s ease-in-out infinite;
+  transform-origin: bottom right;
+  display: inline-block;
+}
+@keyframes quill-write {
+  0%,100% { transform: rotate(-15deg) translateX(0); }
+  25%      { transform: rotate(-10deg) translateX(3px) translateY(-2px); }
+  50%      { transform: rotate(-15deg) translateX(6px); }
+  75%      { transform: rotate(-12deg) translateX(3px) translateY(-1px); }
+}
+.quill-dots span {
+  display: inline-block;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--brass);
+  margin: 0 2px;
+  animation: quill-dot 1.2s ease-in-out infinite;
+}
+.quill-dots span:nth-child(2) { animation-delay: 0.2s; }
+.quill-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes quill-dot {
+  0%,80%,100% { transform: scale(0.6); opacity: 0.4; }
+  40%         { transform: scale(1.2); opacity: 1; }
+}
+
+/* ── Example note cards ── */
+.notecards-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-bottom: 8px;
+}
+.notecards { display: flex; flex-wrap: wrap; gap: 10px; }
+.notecard {
+  background: linear-gradient(135deg, #fdf5dc 0%, #f7eccc 100%);
+  border: 1px solid var(--parchment-deep);
+  border-left: 3px solid var(--brass);
+  border-radius: 1px 3px 3px 1px;
+  padding: 10px 14px;
+  max-width: 260px;
+  cursor: pointer;
+  transition: all 0.18s;
+  box-shadow: 1px 2px 6px rgba(90,50,10,0.12);
+  position: relative;
+}
+.notecard:hover {
+  border-left-color: var(--burgundy);
+  box-shadow: 2px 4px 12px rgba(90,50,10,0.2);
+  transform: translateY(-2px) rotate(-0.3deg);
+}
+.notecard-text {
+  font-size: 12px;
+  font-family: 'Lora', serif;
+  font-style: italic;
+  color: var(--ink-faded);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+.notecard-ask {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--burgundy);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.notecard-ask::before { content: '✦'; font-size: 8px; }
+
+/* ══════════════════════════════════════════════
+   RESPONSE — PERIOD CORRESPONDENCE STYLE
+══════════════════════════════════════════════ */
+.response-wrap { display: none; flex-direction: column; gap: 0; }
+.response-wrap.visible { display: flex; }
+
+.letter-paper {
+  background: linear-gradient(180deg, #fdf8ee 0%, #faf3e0 100%);
+  border: 1px solid var(--parchment-deep);
+  border-top: none;
+  box-shadow: 3px 4px 18px var(--shadow-warm);
+  position: relative;
+}
+/* Red margin line */
+.letter-paper::before {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 52px;
+  width: 1px;
+  background: rgba(180, 60, 60, 0.25);
+  pointer-events: none;
+}
+/* Ruled lines */
+.letter-paper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    180deg,
+    transparent,
+    transparent 27px,
+    rgba(180,150,80,0.12) 27px,
+    rgba(180,150,80,0.12) 28px
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.letter-header {
+  padding: 18px 24px 14px 60px;
+  border-bottom: 1px solid var(--parchment-deep);
+  background: linear-gradient(180deg, rgba(92,26,26,0.06) 0%, transparent 100%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+.letter-from {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--burgundy);
+  text-transform: uppercase;
+}
+.letter-date {
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--ink-light);
+  margin-top: 2px;
+}
+.letter-re {
+  font-family: 'Lora', serif;
+  font-style: italic;
+  font-size: 12.5px;
+  color: var(--ink-faded);
+  max-width: 60%;
+  text-align: right;
+  line-height: 1.4;
+}
+.letter-stamp {
+  position: absolute;
+  top: 14px;
+  right: 20px;
+  width: 52px;
+  height: 52px;
+  border: 2px solid var(--burgundy);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--burgundy);
+  text-align: center;
+  line-height: 1.2;
+  opacity: 0.5;
+  transform: rotate(-12deg);
+}
+
+.letter-body {
+  padding: 20px 24px 24px 60px;
+  font-family: 'Lora', serif;
+  font-size: 14.5px;
+  line-height: 1.85;
+  color: var(--ink);
+  white-space: pre-wrap;
+  word-break: break-word;
+  position: relative;
+  z-index: 1;
+  min-height: 80px;
+}
+.letter-body.loading {
+  color: var(--ink-light);
+  font-style: italic;
+}
+/* Letterpress effect on text */
+.letter-body { text-shadow: 0.3px 0.3px 0 rgba(0,0,0,0.08); }
+
+/* ── Voice bar ── */
+.voice-bar {
+  display: none;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 24px 14px 60px;
+  border-top: 1px solid var(--parchment-deep);
+  background: linear-gradient(180deg, var(--parchment-dark) 0%, var(--parchment) 100%);
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+.voice-bar.visible { display: flex; }
+
+.voice-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  background: linear-gradient(180deg, var(--navy-light) 0%, var(--navy) 100%);
+  border: 1.5px solid var(--brass);
+  border-radius: 2px;
+  color: var(--brass-pale);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.voice-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, #2a5a9b 0%, var(--navy-light) 100%);
+  transform: translateY(-1px);
+}
+.voice-btn.speaking {
+  background: linear-gradient(180deg, var(--burgundy-light) 0%, var(--burgundy-deep) 100%);
+  border-color: var(--brass-light);
+  animation: voice-btn-pulse 2s ease-in-out infinite;
+}
+@keyframes voice-btn-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(184,134,11,0.4); }
+  50%      { box-shadow: 0 0 0 6px rgba(184,134,11,0); }
+}
+
+/* ── Audio waveform ── */
+.waveform {
+  display: none;
+  align-items: flex-end;
+  gap: 2px;
+  height: 18px;
+}
+.waveform.visible { display: inline-flex; }
+.waveform span {
+  display: block;
+  width: 3px;
+  border-radius: 1px;
+  background: var(--brass-pale);
+  animation: wave 1.1s ease-in-out infinite;
+}
+.waveform span:nth-child(1) { height: 4px;  animation-delay: 0.0s; }
+.waveform span:nth-child(2) { height: 10px; animation-delay: 0.1s; }
+.waveform span:nth-child(3) { height: 16px; animation-delay: 0.2s; }
+.waveform span:nth-child(4) { height: 10px; animation-delay: 0.3s; }
+.waveform span:nth-child(5) { height: 6px;  animation-delay: 0.4s; }
+.waveform span:nth-child(6) { height: 14px; animation-delay: 0.5s; }
+.waveform span:nth-child(7) { height: 8px;  animation-delay: 0.6s; }
+@keyframes wave {
+  0%,100% { transform: scaleY(0.4); opacity: 0.5; }
+  50%     { transform: scaleY(1.3); opacity: 1; }
+}
+
+.voice-meta {
+  flex: 1;
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--ink-light);
+}
+.voice-stop-btn {
+  padding: 5px 12px;
+  border: 1px solid var(--parchment-deep);
+  background: transparent;
+  color: var(--ink-light);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.15s;
+  display: none;
+}
+.voice-stop-btn.visible { display: inline-block; }
+.voice-stop-btn:hover { border-color: var(--burgundy); color: var(--burgundy); }
+
+/* ══════════════════════════════════════════════
+   TIMELINE
+══════════════════════════════════════════════ */
+.timeline-section {
+  border: 2px solid var(--border-heavy);
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--navy) 0%, #0a1628 100%);
+  overflow: hidden;
+  box-shadow: 3px 4px 18px var(--shadow-warm);
+}
+.timeline-header {
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(184,134,11,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+.timeline-header:hover { background: rgba(255,255,255,0.03); }
+.timeline-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brass-pale);
+}
+.timeline-toggle { font-size: 11px; color: var(--brass); }
+
+.timeline-body {
+  display: none;
+  padding: 28px 20px 16px;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+}
+.timeline-body.open { display: block; }
+
+.timeline-track {
+  position: relative;
+  height: 110px;
+  min-width: 1400px;   /* wide enough that 52 docs don't pile up */
+  overflow: visible;
+}
+
+.tl-year-labels {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 100%;
+}
+.tl-year {
+  position: absolute;
+  transform: translateX(-50%);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 10px;
+  color: rgba(184,134,11,0.5);
+  top: 6px;
+  letter-spacing: 0.05em;
+}
+
+.tl-markers { position: absolute; top: 0; left: 0; right: 0; height: 100%; }
+.tl-marker {
+  position: absolute;
+  transform: translateX(-50%);
+  cursor: pointer;
+  top: 50%;
+  margin-top: -8px;
+}
+.tl-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--parchment);
+  border: 2px solid var(--brass);
+  transition: all 0.2s;
+  margin: 0 auto;
+}
+.tl-marker:hover .tl-dot,
+.tl-marker.active .tl-dot {
+  background: var(--brass);
+  border-color: var(--brass-light);
+  box-shadow: 0 0 8px rgba(184,134,11,0.6);
+  transform: scale(1.3);
+}
+/* Document label — HIDDEN by default, shown only on hover */
+.tl-label {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 9px;
+  color: rgba(240,208,128,0);
+  letter-spacing: 0.04em;
+  max-width: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  line-height: 1.2;
+  pointer-events: none;
+  transition: color 0.2s;
+}
+.tl-marker:hover .tl-label,
+.tl-marker.active .tl-label { color: var(--brass-pale); }
+
+/* Life event markers (birth, death, presidency) */
+.tl-life-marker {
+  position: absolute;
+  transform: translateX(-50%);
+  top: 50%;
+  margin-top: -20px;
+}
+.tl-life-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(184,134,11,0.3);
+  border: 1px solid rgba(184,134,11,0.5);
+  margin: 0 auto;
+}
+/* Life event labels — BOLD and VISIBLE */
+.tl-life-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--brass-light);
+  text-align: center;
+  margin-top: 4px;
+  white-space: nowrap;
+  letter-spacing: 0.06em;
+}
+
+/* Tooltip — repositioned to avoid cutoff */
+.tl-tooltip {
+  position: absolute;
+  bottom: calc(100% + 48px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--navy);
+  border: 1px solid var(--brass);
+  border-radius: 3px;
+  padding: 10px 14px;
+  min-width: 180px;
+  max-width: 240px;
+  pointer-events: none;
+  z-index: 100;
+  display: none;
+  box-shadow: 2px 3px 12px rgba(0,0,0,0.5);
+}
+.tl-marker:hover .tl-tooltip { display: block; }
+.tl-tooltip-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--brass-pale);
+  margin-bottom: 4px;
+}
+.tl-tooltip-date {
+  font-size: 11px;
+  color: var(--brass);
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  margin-bottom: 5px;
+}
+.tl-tooltip-action {
+  font-size: 11px;
+  color: rgba(240,208,128,0.7);
+  font-family: 'Cormorant Garamond', serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ══════════════════════════════════════════════
+   KNOWLEDGE BASE
+══════════════════════════════════════════════ */
+.kb-section {
+  border: 2px solid var(--border-heavy);
+  border-radius: 3px;
+  background: var(--parchment);
+  box-shadow: 2px 3px 12px var(--shadow-warm);
+  overflow: hidden;
+}
+.kb-header {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--parchment-deep);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  background: linear-gradient(180deg, var(--parchment-dark) 0%, var(--parchment) 100%);
+  user-select: none;
+}
+.kb-header:hover { background: var(--parchment-dark); }
+.kb-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--burgundy);
+}
+.kb-toggle { font-size: 11px; color: var(--ink-light); }
+.kb-body { padding: 16px; display: none; }
+.kb-body.open { display: block; }
+.kb-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.kb-tab {
+  padding: 5px 14px;
+  border: 1px solid var(--parchment-deep);
+  background: transparent;
+  color: var(--ink-light);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.15s;
+}
+.kb-tab.active {
+  background: var(--burgundy);
+  border-color: var(--burgundy);
+  color: var(--parchment);
+}
+.kb-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.kb-table th {
+  text-align: left;
+  padding: 7px 10px;
+  background: var(--parchment-dark);
+  color: var(--ink-light);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  border-bottom: 2px solid var(--border-light);
+}
+.kb-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--parchment-dark);
+  color: var(--ink-faded);
+  vertical-align: top;
+  font-family: 'Lora', serif;
+}
+.kb-table tr:hover td { background: rgba(184,134,11,0.06); }
+.doc-link { color: var(--burgundy); text-decoration: none; font-size: 11px; }
+.doc-link:hover { text-decoration: underline; }
+
+/* ── Disclaimer ── */
+.disclaimer {
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--ink-light);
+  text-align: center;
+  padding: 4px 0 16px;
+  line-height: 1.6;
+  border-top: 1px solid var(--parchment-deep);
+  padding-top: 16px;
+}
+
+/* ── Spinner ── */
+.spinner {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border: 2px solid var(--parchment-deep);
+  border-top-color: var(--brass);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 2px;
+  font-size: 10px;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--parchment-dark);
+  color: var(--ink-light);
+  border: 1px solid var(--parchment-deep);
+}
+
+/* ══ RESPONSIVE / MOBILE ══════════════════════════════════════════════════════
+   Breakpoints: 768px (tablet), 480px (phone)
+══════════════════════════════════════════════════════════════════════════════ */
+
+/* Tablet */
+@media (max-width: 768px) {
+  /* Masthead */
+  .masthead-inner { padding: 16px 16px 12px; gap: 14px; }
+  .masthead-title { font-size: 22px; }
+  .masthead-subtitle { font-size: 12px; }
+  .masthead-byline { font-size: 10px; }
+  .portrait-wrap { width: 80px; height: 96px; flex-shrink: 0; }
+  .portrait-frame { width: 80px; height: 96px; }
+
+  /* Tab bar */
+  .tab-bar { padding: 0 12px; flex-wrap: wrap; gap: 4px; }
+  .tab-btn { padding: 7px 14px; font-size: 12px; }
+  .viz-nav-btn { padding: 6px 12px; font-size: 11px; margin-bottom: 4px; }
+
+  /* Main content */
+  .main { padding: 16px; gap: 18px; }
+  .mode-context { padding: 14px 16px; }
+  .mode-context-title { font-size: 18px; }
+
+  /* Query */
+  .query-input-row { flex-direction: column; }
+  .ask-btn { width: 100%; height: 44px; }
+  .notecards { gap: 8px; }
+  .notecard { max-width: 100%; }
+
+  /* Response letter */
+  .letter-paper::before { display: none; }
+  .letter-header { padding: 14px 16px; flex-wrap: wrap; gap: 8px; }
+  .letter-stamp { display: none; }
+  .letter-re { max-width: 100%; text-align: left; }
+  .letter-body { padding: 16px; font-size: 13.5px; }
+  .voice-bar { padding: 12px 16px; flex-wrap: wrap; gap: 10px; }
+
+  /* Timeline */
+  .timeline-body { padding: 16px 12px; }
+  .timeline-track { min-width: 600px; }
+
+  /* KB */
+  .kb-tabs { flex-wrap: wrap; }
+  .kb-table th, .kb-table td { padding: 6px 8px; font-size: 11px; }
+}
+
+/* Phone */
+@media (max-width: 480px) {
+  /* Masthead — stack portrait + text vertically */
+  .masthead-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 14px 14px 10px;
+    gap: 10px;
+  }
+  .portrait-wrap { width: 64px; height: 76px; }
+  .portrait-frame { width: 64px; height: 76px; }
+  .masthead-title { font-size: 18px; line-height: 1.2; }
+  .masthead-subtitle { font-size: 11px; }
+  .masthead-byline { display: none; }
+  .masthead-seal { font-size: 9px; }
+
+  /* Tab bar — full width pills, wrap */
+  .tab-bar {
+    padding: 0 10px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .tab-btn {
+    padding: 6px 12px;
+    font-size: 11px;
+    border-radius: 3px 3px 0 0;
+    flex: 1;
+    text-align: center;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  /* Viz nav button — full width below tabs */
+  a[href="/viz"] {
+    width: calc(100% - 20px) !important;
+    margin: 4px 10px 0 !important;
+    border-radius: 3px !important;
+    justify-content: center !important;
+    font-size: 12px !important;
+  }
+
+  /* Main */
+  .main { padding: 12px; gap: 14px; }
+
+  /* Mode context card */
+  .mode-context { padding: 12px 14px; border-radius: 2px; }
+  .mode-context-title { font-size: 16px; }
+  .mode-context-desc { font-size: 12px; }
+  .mode-stamp { font-size: 10px; }
+
+  /* Query section */
+  .query-label { font-size: 13px; }
+  .query-textarea { font-size: 13px; min-height: 80px; padding: 10px 12px; }
+  .ask-btn { font-size: 14px; }
+  .notecards-label { font-size: 11px; }
+  .notecard { max-width: 100%; }
+  .notecard-text { font-size: 11px; }
+
+  /* Response letter */
+  .letter-header { padding: 12px 12px; flex-direction: column; gap: 6px; }
+  .letter-from { font-size: 11px; }
+  .letter-date { font-size: 11px; }
+  .letter-re { display: none; }
+  .letter-stamp { display: none; }
+  .letter-body { padding: 12px; font-size: 13px; line-height: 1.75; }
+
+  /* Voice bar */
+  .voice-bar { padding: 10px 12px; gap: 8px; }
+  .voice-btn { padding: 7px 12px; font-size: 12px; }
+  .voice-meta { display: none; }
+
+  /* Timeline — horizontal scroll only, no overflow clipping */
+  .timeline-section { overflow: hidden; }
+  .timeline-body {
+    padding: 12px 8px 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .timeline-header-left { font-size: 12px; }
+  .timeline-track { min-width: 700px; height: 100px; }
+
+  /* KB */
+  .kb-header-left { font-size: 12px; }
+  .kb-tabs { gap: 4px; flex-wrap: wrap; }
+  .kb-tab { font-size: 11px; padding: 4px 10px; }
+  .kb-table { font-size: 11px; }
+  .kb-table th { font-size: 10px; padding: 5px 6px; }
+  .kb-table td { padding: 5px 6px; }
+  /* Hide less important columns on mobile */
+  .kb-table th:nth-child(n+4),
+  .kb-table td:nth-child(n+4) { display: none; }
+
+  /* Disclaimer */
+  .disclaimer { font-size: 10px; padding-top: 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ MASTHEAD ══ -->
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="portrait-wrap" id="portrait-wrap">
+      <div class="portrait-frame">
+        <!-- Mathew Brady 1863 photo via Wikimedia Commons (public domain) -->
+        <img class="portrait-img" id="portrait-img"
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Abraham_Lincoln_O-77_matte_collodion_print.jpg/402px-Abraham_Lincoln_O-77_matte_collodion_print.jpg"
+          alt="Abraham Lincoln, c. 1863, photograph by Mathew Brady"
+          onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Abraham_Lincoln_seated%2C_Feb_9%2C_1864.jpg/320px-Abraham_Lincoln_seated%2C_Feb_9%2C_1864.jpg'">
+        <div class="portrait-eyes" id="portrait-eyes"></div>
+      </div>
+    </div>
+    <div class="masthead-text">
+      <div class="masthead-seal">Executive Office · Washington City</div>
+      <div class="masthead-title">Lincoln Constitutional AI</div>
+      <div class="masthead-rule"></div>
+      <div class="masthead-subtitle">A Digital Humanities Research Instrument</div>
+      <div class="masthead-byline">Primary Sources: Collected Works of Abraham Lincoln · Basler Edition · University of Michigan</div>
+    </div>
+  </div>
+  <!-- Folder tabs -->
+  <div class="tab-bar" style="display:flex;align-items:flex-end;justify-content:space-between;width:100%;max-width:960px;margin:0 auto;">
+    <div style="display:flex;gap:0;">
+      <button class="tab-btn active" id="tab-historian" onclick="setMode('historian')">📜 &nbsp;The Historian</button>
+      <button class="tab-btn" id="tab-reasoner" onclick="setMode('reasoner')">⚖️ &nbsp;The Reasoner</button>
+    </div>
+    <a href="/viz" target="_blank" style="
+      display:inline-flex;align-items:center;gap:6px;
+      padding:8px 16px;margin-bottom:2px;
+      border:1.5px solid var(--brass);border-radius:3px 3px 0 0;
+      background:rgba(13,31,60,0.7);color:var(--brass-pale);
+      font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:600;
+      letter-spacing:0.06em;text-decoration:none;transition:all 0.15s;
+    " onmouseover="this.style.background='rgba(13,31,60,0.95)'" onmouseout="this.style.background='rgba(13,31,60,0.7)'">
+      🔬 &nbsp;Language Evolution Map
+    </a>
+  </div>
+</header>
+
+<!-- ══ MAIN ══ -->
+<main class="main">
+
+  <!-- Mode context -->
+  <div class="mode-context" id="mode-context">
+    <div class="mode-context-title" id="mode-title">Ask President Lincoln</div>
+    <div class="mode-context-desc" id="mode-desc">Address your question directly to President Lincoln. He speaks in the first person, drawing on his own speeches, letters, and orders — quoting his own words as a man recalling what he wrote. Grounded strictly in primary sources; no invention.</div>
+    <span class="mode-stamp" id="mode-stamp">In Lincoln's Own Voice · Primary Sources Only</span>
+  </div>
+
+  <!-- Query -->
+  <div class="query-section">
+    <div class="query-label" id="query-label">Address your question to the President:</div>
+    <div class="query-input-row">
+      <textarea class="query-textarea" id="question-input"
+        placeholder="Mr. President, how did you justify suspending habeas corpus in 1861?"></textarea>
+      <button class="ask-btn" id="submit-btn" onclick="submitQuery()">Submit →</button>
+    </div>
+    <div class="quill-loader" id="quill-loader">
+      <span class="quill-icon">🪶</span>
+      <span id="quill-msg">Consulting the primary sources</span>
+      <span class="quill-dots"><span></span><span></span><span></span></span>
+    </div>
+    <div>
+      <div class="notecards-label">Suggested Inquiries</div>
+      <div class="notecards" id="notecards-container"></div>
+    </div>
+  </div>
+
+  <!-- Response -->
+  <div class="response-wrap" id="response-wrap">
+    <div class="letter-paper">
+      <div class="letter-header">
+        <div>
+          <div class="letter-from" id="letter-from">Abraham Lincoln, President</div>
+          <div class="letter-date" id="letter-date">Executive Mansion, Washington</div>
+        </div>
+        <div class="letter-re" id="letter-re"></div>
+        <div class="letter-stamp" id="letter-stamp">Historian<br>Mode</div>
+      </div>
+      <div class="letter-body" id="response-body"></div>
+      <!-- Voice bar -->
+      <div class="voice-bar" id="voice-bar">
+        <button class="voice-btn" id="voice-btn" onclick="toggleVoice()">
+          <span id="voice-icon">🎙️</span>
+          <span id="voice-btn-label">Hear in Lincoln's Voice</span>
+          <span class="waveform" id="voice-waveform">
+            <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+          </span>
+        </button>
+        <div class="voice-meta" id="voice-meta">Microsoft GuyNeural · Tenor +20Hz · Deliberate -15% rate</div>
+        <button class="voice-stop-btn" id="voice-stop-btn" onclick="stopVoice()">■ Stop</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="timeline-section">
+    <div class="timeline-header" onclick="toggleTimeline()">
+      <div class="timeline-header-left">
+        <span>📅</span>
+        <span>Life & Works of Abraham Lincoln, 1809–1865</span>
+      </div>
+      <span class="timeline-toggle" id="tl-toggle">▼ Show</span>
+    </div>
+    <div class="timeline-body" id="tl-body">
+      <div class="timeline-track" id="tl-track"></div>
+    </div>
+  </div>
+
+  <!-- Knowledge Base -->
+  <div class="kb-section">
+    <div class="kb-header" onclick="toggleKB()">
+      <div class="kb-header-left">
+        <span>📚</span>
+        <span>Primary Source Archive</span>
+        <span class="badge" id="kb-count-badge">Loading…</span>
+      </div>
+      <span class="kb-toggle" id="kb-toggle">▼ Show</span>
+    </div>
+    <div class="kb-body" id="kb-body">
+      <div class="kb-tabs">
+        <button class="kb-tab active" onclick="showKBTab('corpus',this)">Corpus (52)</button>
+        <button class="kb-tab" onclick="showKBTab('principles',this)">Principles (15)</button>
+        <button class="kb-tab" onclick="showKBTab('patterns',this)">Patterns (13)</button>
+      </div>
+      <div id="kb-content"></div>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    The Historian speaks strictly from Lincoln's documented words. The Reasoner applies those principles to modern questions — Lincoln himself acknowledges the limits of his 19th-century perspective.<br>
+    <em>Sources: Collected Works of Abraham Lincoln (Basler ed.) · Wikisource · Abraham Lincoln Association</em>
+  </div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  LINCOLN CONSTITUTIONAL AI — FRONTEND
+// ═══════════════════════════════════════════════════════
+
+// ── Mode & Examples ──────────────────────────────────────
+const EXAMPLES = {
+  historian: [
+    "Mr. President, how did you justify suspending habeas corpus?",
+    "Mr. President, how do you see the Declaration and the Constitution relating to each other?",
+    "Mr. President, what was your constitutional basis for the Emancipation Proclamation?",
+    "Mr. President, how did you define liberty in your 1864 Baltimore speech?",
+    "Mr. President, what did you say about secession in your First Inaugural?"
+  ],
+  reasoner: [
+    "Mr. President, how would your necessity doctrine apply to modern emergency executive orders?",
+    "Mr. President, how would your Union perpetuity principle address state nullification today?",
+    "Mr. President, how would your free labor principles apply to gig economy workers?",
+    "Mr. President, how would you reason about detention without trial after a terrorist attack?",
+    "Mr. President, how would your Declaration-as-lodestar approach apply to equal protection today?"
+  ]
+};
+
+let currentMode = 'historian';
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('tab-historian').classList.toggle('active', mode === 'historian');
+  document.getElementById('tab-reasoner').classList.toggle('active', mode === 'reasoner');
+  if (mode === 'historian') {
+    document.getElementById('mode-title').textContent = 'Ask President Lincoln';
+    document.getElementById('mode-desc').textContent = 'Address your question directly to President Lincoln. He speaks in the first person, drawing on his own speeches, letters, and orders — quoting his own words as a man recalling what he wrote. Grounded strictly in primary sources; no invention.';
+    document.getElementById('mode-stamp').textContent = "In Lincoln's Own Voice · Primary Sources Only";
+    document.getElementById('query-label').textContent = 'Address your question to the President:';
+    document.getElementById('question-input').placeholder = "Mr. President, how did you justify suspending habeas corpus in 1861?";
+    document.getElementById('letter-stamp').textContent = 'Historian\nMode';
+  } else {
+    document.getElementById('mode-title').textContent = 'Lincoln on Modern Questions';
+    document.getElementById('mode-desc').textContent = 'Present a modern constitutional or policy question to President Lincoln. He reasons through it in the first person, applying his documented principles — while being candid about the limits of his 19th-century perspective.';
+    document.getElementById('mode-stamp').textContent = "Lincolnian Reasoning · Epistemic Guardrails Active";
+    document.getElementById('query-label').textContent = 'Present a modern question to the President:';
+    document.getElementById('question-input').placeholder = "Mr. President, how would your necessity doctrine apply to modern emergency executive orders?";
+    document.getElementById('letter-stamp').textContent = 'Reasoner\nMode';
+  }
+  renderNotecards();
+  document.getElementById('response-wrap').classList.remove('visible');
+  showVoiceBar(false);
+  document.getElementById('question-input').value = '';
+}
+
+function renderNotecards() {
+  const c = document.getElementById('notecards-container');
+  c.innerHTML = EXAMPLES[currentMode].map(q => `
+    <div class="notecard" onclick="useExample(this)">
+      <div class="notecard-text">${q}</div>
+      <div class="notecard-ask">Ask This</div>
+    </div>`).join('');
+}
+
+function useExample(el) {
+  document.getElementById('question-input').value = el.querySelector('.notecard-text').textContent;
+  document.getElementById('question-input').focus();
+}
+
+// ── Query / Polling ───────────────────────────────────────
+const LOADING_MSGS = [
+  "Consulting the primary sources",
+  "Searching the corpus",
+  "Cross-referencing documents",
+  "Composing the President's response"
+];
+
+async function submitQuery() {
+  const question = document.getElementById('question-input').value.trim();
+  if (!question) return;
+
+  const btn = document.getElementById('submit-btn');
+  const responseWrap = document.getElementById('response-wrap');
+  const responseBody = document.getElementById('response-body');
+  const letterRe = document.getElementById('letter-re');
+  const quillLoader = document.getElementById('quill-loader');
+  const quillMsg = document.getElementById('quill-msg');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Submitting…';
+  responseWrap.classList.remove('visible');
+  showVoiceBar(false);
+  quillLoader.classList.add('visible');
+  letterRe.textContent = '"' + question.substring(0, 70) + (question.length > 70 ? '…' : '') + '"';
+
+  let msgIdx = 0;
+  const msgInterval = setInterval(() => {
+    msgIdx = Math.min(msgIdx + 1, LOADING_MSGS.length - 1);
+    quillMsg.textContent = LOADING_MSGS[msgIdx];
+  }, 3500);
+
+  try {
+    const kickRes = await fetch('/api/query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: currentMode, question })
+    });
+    if (!kickRes.ok) throw new Error('Server error ' + kickRes.status);
+    const { job_id } = await kickRes.json();
+
+    let answer = null;
+    for (let i = 0; i < 60; i++) {
+      await new Promise(r => setTimeout(r, 1500));
+      const poll = await fetch('/api/result/' + job_id);
+      if (!poll.ok) continue;
+      const data = await poll.json();
+      if (data.status === 'done')  { answer = data.answer; break; }
+      if (data.status === 'error') throw new Error(data.error || 'Query failed');
+    }
+    if (!answer) throw new Error('Request timed out. Please try again.');
+
+    responseBody.className = 'letter-body';
+    responseBody.textContent = answer;
+    responseWrap.classList.add('visible');
+    showVoiceBar(true);
+    responseWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  } catch (e) {
+    responseBody.className = 'letter-body';
+    responseBody.textContent = 'Error: ' + e.message;
+    responseWrap.classList.add('visible');
+    showVoiceBar(false);
+  } finally {
+    clearInterval(msgInterval);
+    quillLoader.classList.remove('visible');
+    btn.disabled = false;
+    btn.innerHTML = 'Submit →';
+  }
+}
+
+document.getElementById('question-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) submitQuery();
+});
+
+// ── Portrait mouse-follow eyes ────────────────────────────
+// We overlay two subtle brightness highlights that shift with cursor position
+// to create the illusion of eye tracking on the photo.
+(function() {
+  const wrap = document.getElementById('portrait-wrap');
+  if (!wrap) return;
+  // Eye positions as % of portrait frame (approx for Brady photo)
+  const eyes = [
+    { x: 37, y: 36 },  // left eye
+    { x: 63, y: 36 }   // right eye
+  ];
+  eyes.forEach(eye => {
+    const dot = document.createElement('div');
+    dot.style.cssText = `
+      position:absolute;
+      width:6px;height:6px;
+      border-radius:50%;
+      background:rgba(255,255,255,0.0);
+      left:${eye.x}%;top:${eye.y}%;
+      transform:translate(-50%,-50%);
+      transition:transform 0.2s ease;
+      pointer-events:none;
+      z-index:10;
+    `;
+    dot.dataset.baseX = eye.x;
+    dot.dataset.baseY = eye.y;
+    wrap.appendChild(dot);
+  });
+
+  document.addEventListener('mousemove', e => {
+    const rect = wrap.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = (e.clientX - cx) / window.innerWidth;
+    const dy = (e.clientY - cy) / window.innerHeight;
+    wrap.querySelectorAll('[data-base-x]').forEach(dot => {
+      const mx = dx * 4;  // max 4px movement
+      const my = dy * 3;
+      dot.style.transform = `translate(calc(-50% + ${mx}px), calc(-50% + ${my}px))`;
+    });
+  });
+})();
+
+// ── Voice Engine (server-side espeak-ng) ─────────────────
+let lincolnAudio = null;
+let isSpeaking   = false;
+
+async function toggleVoice() {
+  if (isSpeaking) { stopVoice(); return; }
+  const text = document.getElementById('response-body').textContent;
+  if (!text || text.startsWith('Error:')) return;
+
+  // Show loading state while neural audio generates (3-8s)
+  setLoadingUI(true);
+
+  try {
+    const res = await fetch('/api/speak', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+    if (!res.ok) throw new Error('TTS error ' + res.status);
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    lincolnAudio = new Audio(url);
+    lincolnAudio.onended  = () => { finishSpeaking(); URL.revokeObjectURL(url); };
+    lincolnAudio.onerror  = () => { finishSpeaking(); URL.revokeObjectURL(url); };
+    setLoadingUI(false);
+    setSpeakingUI(true);
+    isSpeaking = true;
+    lincolnAudio.play();
+  } catch(e) {
+    console.error('TTS:', e);
+    setLoadingUI(false);
+    finishSpeaking();
+  }
+}
+
+function setLoadingUI(loading) {
+  const btn   = document.getElementById('voice-btn');
+  const label = document.getElementById('voice-btn-label');
+  const icon  = document.getElementById('voice-icon');
+  const meta  = document.getElementById('voice-meta');
+  if (loading) {
+    btn.disabled = true;
+    icon.textContent = '⏳';
+    label.textContent = 'Generating voice…';
+    meta.textContent = 'Synthesizing neural audio via Microsoft Edge TTS…';
+  } else {
+    btn.disabled = false;
+    icon.textContent = '🎙️';
+    label.textContent = "Hear in Lincoln\'s Voice";
+    meta.textContent = 'Microsoft GuyNeural · Tenor +20Hz · Deliberate -15% rate';
+  }
+}
+
+function stopVoice() {
+  if (lincolnAudio) { lincolnAudio.pause(); lincolnAudio.currentTime = 0; lincolnAudio = null; }
+  finishSpeaking();
+}
+
+function finishSpeaking() {
+  isSpeaking = false;
+  setSpeakingUI(false);
+  document.getElementById('portrait-img').classList.remove('speaking');
+}
+
+function setSpeakingUI(speaking) {
+  const btn      = document.getElementById('voice-btn');
+  const label    = document.getElementById('voice-btn-label');
+  const icon     = document.getElementById('voice-icon');
+  const waveform = document.getElementById('voice-waveform');
+  const stopBtn  = document.getElementById('voice-stop-btn');
+  const meta     = document.getElementById('voice-meta');
+  const portrait = document.getElementById('portrait-img');
+  if (speaking) {
+    btn.classList.add('speaking');
+    label.textContent = 'Speaking…';
+    icon.textContent  = '🔊';
+    waveform.classList.add('visible');
+    stopBtn.classList.add('visible');
+    meta.textContent = 'Microsoft GuyNeural · SSML prosody · newscast-formal';
+    portrait.classList.add('speaking');
+  } else {
+    btn.classList.remove('speaking');
+    label.textContent = "Hear in Lincoln's Voice";
+    icon.textContent  = '🎙️';
+    waveform.classList.remove('visible');
+    stopBtn.classList.remove('visible');
+    meta.textContent = 'Microsoft GuyNeural · Tenor +20Hz · Deliberate -15% rate';
+    portrait.classList.remove('speaking');
+  }
+}
+
+function showVoiceBar(show) {
+  document.getElementById('voice-bar').classList.toggle('visible', show);
+  if (!show) stopVoice();
+}
+
+// ── Timeline ──────────────────────────────────────────────
+const TIMELINE_DOCS = [{"id": "DOC001", "year": 1838, "month": 1, "label": "Lyceum Address", "title": "Lyceum Address (The Perpetuation of Our Political Institutions)", "question": "Mr. President, regarding your Lyceum Address (The Perpetuation of Our Political Institutions) (January 27, 1838), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC038", "year": 1842, "month": 2, "label": "Temperance Address", "title": "Temperance Address (Washington Society Speech)", "question": "Mr. President, regarding your Temperance Address (Washington Society Speech) (February 22, 1842), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC039", "year": 1852, "month": 7, "label": "Eulogy on Henry Clay", "title": "Eulogy on Henry Clay", "question": "Mr. President, regarding your Eulogy on Henry Clay (July 06, 1852), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC019", "year": 1854, "month": 10, "label": "Speech on the…", "title": "Speech on the Repeal of the Missouri Compromise (Peoria Speech)", "question": "Mr. President, regarding your Speech on the Repeal of the Missouri Compromise (Peoria Speech) (October 16, 1854), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC040", "year": 1856, "month": 8, "label": "Speech at…", "title": "Speech at Kalamazoo, Michigan", "question": "Mr. President, regarding your Speech at Kalamazoo, Michigan (August 27, 1856), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC041", "year": 1858, "month": 6, "label": "House Divided Speech", "title": "House Divided Speech (Republican State Convention)", "question": "Mr. President, regarding your House Divided Speech (Republican State Convention) (June 16, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC020", "year": 1858, "month": 8, "label": "First…", "title": "First Lincoln-Douglas Debate, Ottawa, Illinois", "question": "Mr. President, regarding your First Lincoln-Douglas Debate, Ottawa, Illinois (August 21, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC021", "year": 1858, "month": 8, "label": "Second…", "title": "Second Lincoln-Douglas Debate, Freeport, Illinois", "question": "Mr. President, regarding your Second Lincoln-Douglas Debate, Freeport, Illinois (August 27, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC022", "year": 1858, "month": 9, "label": "Third…", "title": "Third Lincoln-Douglas Debate, Jonesboro, Illinois", "question": "Mr. President, regarding your Third Lincoln-Douglas Debate, Jonesboro, Illinois (September 15, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC023", "year": 1858, "month": 9, "label": "Fourth…", "title": "Fourth Lincoln-Douglas Debate, Charleston, Illinois", "question": "Mr. President, regarding your Fourth Lincoln-Douglas Debate, Charleston, Illinois (September 18, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC024", "year": 1858, "month": 10, "label": "Fifth…", "title": "Fifth Lincoln-Douglas Debate, Galesburg, Illinois", "question": "Mr. President, regarding your Fifth Lincoln-Douglas Debate, Galesburg, Illinois (October 07, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC025", "year": 1858, "month": 10, "label": "Sixth…", "title": "Sixth Lincoln-Douglas Debate, Quincy, Illinois", "question": "Mr. President, regarding your Sixth Lincoln-Douglas Debate, Quincy, Illinois (October 13, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC026", "year": 1858, "month": 10, "label": "Seventh…", "title": "Seventh Lincoln-Douglas Debate, Alton, Illinois", "question": "Mr. President, regarding your Seventh Lincoln-Douglas Debate, Alton, Illinois (October 15, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC002", "year": 1860, "month": 1, "label": "Fragment on the…", "title": "Fragment on the Constitution and the Union", "question": "Mr. President, regarding your Fragment on the Constitution and the Union (January 01, 1860), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC017", "year": 1860, "month": 2, "label": "Cooper Union Address", "title": "Cooper Union Address", "question": "Mr. President, regarding your Cooper Union Address (February 27, 1860), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC003", "year": 1861, "month": 3, "label": "First Inaugural…", "title": "First Inaugural Address", "question": "Mr. President, regarding your First Inaugural Address (March 04, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC005", "year": 1861, "month": 4, "label": "Order to Suspend…", "title": "Order to Suspend Habeas Corpus", "question": "Mr. President, regarding your Order to Suspend Habeas Corpus (April 27, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC042", "year": 1861, "month": 4, "label": "Proclamation of…", "title": "Proclamation of Blockade of Southern Ports", "question": "Mr. President, regarding your Proclamation of Blockade of Southern Ports (April 19, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC043", "year": 1861, "month": 4, "label": "Proclamation…", "title": "Proclamation Calling Forth the Militia (75,000 troops)", "question": "Mr. President, regarding your Proclamation Calling Forth the Militia (75,000 troops) (April 15, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC004", "year": 1861, "month": 7, "label": "Message to Congress…", "title": "Message to Congress in Special Session", "question": "Mr. President, regarding your Message to Congress in Special Session (July 04, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC046", "year": 1861, "month": 9, "label": "Letter to Orville…", "title": "Letter to Orville H. Browning on Frémont's Proclamation", "question": "Mr. President, regarding your Letter to Orville H. Browning on Frémont's Proclamation (September 22, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC006", "year": 1861, "month": 12, "label": "Annual Message to…", "title": "Annual Message to Congress (First)", "question": "Mr. President, regarding your Annual Message to Congress (First) (December 03, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC051", "year": 1862, "month": 3, "label": "Message to Congress…", "title": "Message to Congress Proposing Compensated Emancipation", "question": "Mr. President, regarding your Message to Congress Proposing Compensated Emancipation (March 06, 1862), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC047", "year": 1862, "month": 8, "label": "Letter to Horace…", "title": "Letter to Horace Greeley ('If I could save the Union')", "question": "Mr. President, regarding your Letter to Horace Greeley ('If I could save the Union') (August 22, 1862), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC007", "year": 1862, "month": 9, "label": "Preliminary…", "title": "Preliminary Emancipation Proclamation", "question": "Mr. President, regarding your Preliminary Emancipation Proclamation (September 22, 1862), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC027", "year": 1862, "month": 9, "label": "Proclamation…", "title": "Proclamation Suspending Habeas Corpus (Revised)", "question": "Mr. President, regarding your Proclamation Suspending Habeas Corpus (Revised) (September 24, 1862), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC028", "year": 1862, "month": 9, "label": "Proclamation of…", "title": "Proclamation of Emancipation (Preliminary)", "question": "Mr. President, regarding your Proclamation of Emancipation (Preliminary) (September 22, 1862), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC008", "year": 1862, "month": 12, "label": "Annual Message to…", "title": "Annual Message to Congress (Second)", "question": "Mr. President, regarding your Annual Message to Congress (Second) (December 01, 1862), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC009", "year": 1863, "month": 1, "label": "Final Emancipation…", "title": "Final Emancipation Proclamation", "question": "Mr. President, regarding your Final Emancipation Proclamation (January 01, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC029", "year": 1863, "month": 1, "label": "Proclamation of…", "title": "Proclamation of Emancipation (Final)", "question": "Mr. President, regarding your Proclamation of Emancipation (Final) (January 01, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC033", "year": 1863, "month": 1, "label": "Letter to General…", "title": "Letter to General Joseph Hooker", "question": "Mr. President, regarding your Letter to General Joseph Hooker (January 26, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC032", "year": 1863, "month": 3, "label": "Executive Order…", "title": "Executive Order Establishing the National Academy of Sciences", "question": "Mr. President, regarding your Executive Order Establishing the National Academy of Sciences (March 03, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC044", "year": 1863, "month": 4, "label": "Executive Order —…", "title": "Executive Order — Lieber Code (General Orders No. 100)", "question": "Mr. President, regarding your Executive Order — Lieber Code (General Orders No. 100) (April 24, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC010", "year": 1863, "month": 6, "label": "Letter to Erastus…", "title": "Letter to Erastus Corning and Others", "question": "Mr. President, regarding your Letter to Erastus Corning and Others (June 23, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC048", "year": 1863, "month": 8, "label": "Letter to James C.…", "title": "Letter to James C. Conkling (Read to Springfield Rally)", "question": "Mr. President, regarding your Letter to James C. Conkling (Read to Springfield Rally) (August 26, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC045", "year": 1863, "month": 9, "label": "Proclamation…", "title": "Proclamation Suspending Habeas Corpus Nationwide", "question": "Mr. President, regarding your Proclamation Suspending Habeas Corpus Nationwide (September 15, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC049", "year": 1863, "month": 10, "label": "Proclamation of…", "title": "Proclamation of Thanksgiving (first national Thanksgiving)", "question": "Mr. President, regarding your Proclamation of Thanksgiving (first national Thanksgiving) (October 03, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC011", "year": 1863, "month": 11, "label": "Gettysburg Address", "title": "Gettysburg Address", "question": "Mr. President, regarding your Gettysburg Address (November 19, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC037", "year": 1863, "month": 11, "label": "Remarks at…", "title": "Remarks at Gettysburg Dedication Ceremony", "question": "Mr. President, regarding your Remarks at Gettysburg Dedication Ceremony (November 19, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC012", "year": 1863, "month": 12, "label": "Proclamation of…", "title": "Proclamation of Amnesty and Reconstruction", "question": "Mr. President, regarding your Proclamation of Amnesty and Reconstruction (December 08, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC031", "year": 1863, "month": 12, "label": "Proclamation of…", "title": "Proclamation of Amnesty and Reconstruction (10% Plan)", "question": "Mr. President, regarding your Proclamation of Amnesty and Reconstruction (10% Plan) (December 08, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC036", "year": 1864, "month": 3, "label": "Address to the New…", "title": "Address to the New York Workingmen's Democratic Republican Association", "question": "Mr. President, regarding your Address to the New York Workingmen's Democratic Republican Association (March 21, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC013", "year": 1864, "month": 4, "label": "Letter to Albert G.…", "title": "Letter to Albert G. Hodges", "question": "Mr. President, regarding your Letter to Albert G. Hodges (April 04, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC014", "year": 1864, "month": 4, "label": "Address at Sanitary…", "title": "Address at Sanitary Fair Baltimore", "question": "Mr. President, regarding your Address at Sanitary Fair Baltimore (April 18, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC034", "year": 1864, "month": 4, "label": "Letter to General…", "title": "Letter to General Ulysses S. Grant", "question": "Mr. President, regarding your Letter to General Ulysses S. Grant (April 30, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC052", "year": 1864, "month": 6, "label": "Address at Sanitary…", "title": "Address at Sanitary Fair, Philadelphia", "question": "Mr. President, regarding your Address at Sanitary Fair, Philadelphia (June 16, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC035", "year": 1864, "month": 11, "label": "Letter to Mrs.…", "title": "Letter to Mrs. Lydia Bixby", "question": "Mr. President, regarding your Letter to Mrs. Lydia Bixby (November 21, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC050", "year": 1864, "month": 11, "label": "Response to a…", "title": "Response to a Serenade (on re-election, November 10, 1864)", "question": "Mr. President, regarding your Response to a Serenade (on re-election, November 10, 1864) (November 10, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC018", "year": 1864, "month": 12, "label": "Annual Message to…", "title": "Annual Message to Congress (Fourth)", "question": "Mr. President, regarding your Annual Message to Congress (Fourth) (December 06, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC015", "year": 1865, "month": 3, "label": "Second Inaugural…", "title": "Second Inaugural Address", "question": "Mr. President, regarding your Second Inaugural Address (March 04, 1865), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC030", "year": 1865, "month": 3, "label": "Order Establishing…", "title": "Order Establishing the Bureau of Refugees, Freedmen, and Abandoned Lands", "question": "Mr. President, regarding your Order Establishing the Bureau of Refugees, Freedmen, and Abandoned Lands (March 03, 1865), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC016", "year": 1865, "month": 4, "label": "Last Public Address", "title": "Last Public Address", "question": "Mr. President, regarding your Last Public Address (April 11, 1865), what was your core constitutional argument and why did you judge it necessary?"}];
+
+const LIFE_EVENTS = [
+  { year:1809, label:'Born\n1809' },
+  { year:1861, label:'Presidency\n1861' },
+  { year:1865, label:'Died\n1865' },
+];
+
+const TL_START = 1835;
+const TL_END   = 1866;
+const TL_SPAN  = TL_END - TL_START;
+
+function yearToPct(year) {
+  return ((year - TL_START) / TL_SPAN * 100).toFixed(2) + '%';
+}
+
+let tlOpen = false;
+function toggleTimeline() {
+  tlOpen = !tlOpen;
+  document.getElementById('tl-body').classList.toggle('open', tlOpen);
+  document.getElementById('tl-toggle').textContent = tlOpen ? '▲ Hide' : '▼ Show';
+  if (tlOpen && !document.getElementById('tl-track').children.length) buildTimeline();
+}
+
+function buildTimeline() {
+  const track = document.getElementById('tl-track');
+  track.innerHTML = '';
+
+  const LINE_Y = 52; // px from top where the brass line sits
+
+  // ── Brass line ────────────────────────────────────────────────────────────
+  const line = document.createElement('div');
+  Object.assign(line.style, {
+    position:'absolute', left:'0', right:'0',
+    top: LINE_Y + 'px', height:'3px',
+    background:'linear-gradient(90deg,var(--brass),var(--brass-light),var(--brass))',
+    borderRadius:'2px', pointerEvents:'none',
+  });
+  track.appendChild(line);
+
+  // ── Year tick labels (above the line) ────────────────────────────────────
+  for (let y = 1838; y <= 1865; y += 4) {
+    const lbl = document.createElement('div');
+    Object.assign(lbl.style, {
+      position:'absolute', left:yearToPct(y),
+      top:(LINE_Y - 22)+'px', transform:'translateX(-50%)',
+      fontSize:'11px', color:'rgba(184,134,11,0.55)',
+      fontFamily:"'Cormorant Garamond',serif",
+      whiteSpace:'nowrap', pointerEvents:'none',
+    });
+    lbl.textContent = y;
+    track.appendChild(lbl);
+  }
+
+  // ── Life event markers (Born 1809, Presidency 1861, Died 1865) ───────────
+  LIFE_EVENTS.forEach(e => {
+    const pct = yearToPct(e.year);
+
+    const dot = document.createElement('div');
+    Object.assign(dot.style, {
+      position:'absolute', left:pct,
+      top:(LINE_Y - 11)+'px',
+      transform:'translateX(-50%)',
+      width:'22px', height:'22px', borderRadius:'50%',
+      background:'var(--brass-light)',
+      border:'3px solid rgba(13,31,60,0.9)',
+      boxShadow:'0 0 10px rgba(184,134,11,0.5)',
+      zIndex:'3',
+    });
+    track.appendChild(dot);
+
+    const lbl = document.createElement('div');
+    Object.assign(lbl.style, {
+      position:'absolute', left:pct,
+      top:(LINE_Y + 16)+'px',
+      transform:'translateX(-50%)',
+      fontSize:'12px', fontWeight:'700',
+      color:'var(--brass-pale)',
+      fontFamily:"'Cormorant Garamond',serif",
+      letterSpacing:'0.05em', whiteSpace:'nowrap',
+    });
+    lbl.textContent = e.label.replace('\n',' ');
+    track.appendChild(lbl);
+  });
+
+  // ── Document markers — ALL on the line, no staggering ────────────────────
+  // Use a wider track (min-width driven by doc count) so dots don't pile up.
+  // Each dot is small (10px), tooltip opens above the line on hover.
+
+  const sorted = [...TIMELINE_DOCS].sort(
+    (a,b) => (a.year*12+(a.month||6)) - (b.year*12+(b.month||6))
+  );
+
+  sorted.forEach(doc => {
+    const m   = doc.month || 6;
+    const pct = ((doc.year + (m-1)/12 - TL_START) / TL_SPAN * 100).toFixed(3);
+
+    const wrap = document.createElement('div');
+    Object.assign(wrap.style, {
+      position:'absolute', left:pct+'%',
+      top:'0', transform:'translateX(-50%)',
+      zIndex:'4', cursor:'pointer',
+    });
+
+    // Dot sits exactly on the line
+    const dot = document.createElement('div');
+    Object.assign(dot.style, {
+      width:'10px', height:'10px', borderRadius:'50%',
+      background:'var(--parchment)',
+      border:'2px solid var(--brass)',
+      margin:'0 auto',
+      marginTop:(LINE_Y - 5)+'px',   // centers the 10px dot on LINE_Y
+      transition:'all 0.15s',
+      position:'relative', zIndex:'4',
+    });
+    wrap.appendChild(dot);
+
+    // Tooltip opens ABOVE the line, anchored to bottom of tooltip = dot top
+    const tip = document.createElement('div');
+    Object.assign(tip.style, {
+      position:'absolute',
+      bottom:'calc(100% - '+(LINE_Y - 5)+'px + 8px)',
+      left:'50%', transform:'translateX(-50%)',
+      background:'#0a1628',
+      border:'1.5px solid var(--brass)',
+      borderRadius:'4px', padding:'9px 13px',
+      minWidth:'200px', maxWidth:'260px',
+      display:'none', zIndex:'1000',
+      boxShadow:'0 6px 20px rgba(0,0,0,0.8)',
+      pointerEvents:'none',
+    });
+
+    const tipTitle = document.createElement('div');
+    Object.assign(tipTitle.style, {
+      fontSize:'12px', fontWeight:'600', color:'var(--brass-pale)',
+      marginBottom:'3px', fontFamily:"'Cormorant Garamond',serif",
+      lineHeight:'1.35',
+    });
+    tipTitle.textContent = doc.title;
+
+    const tipDate = document.createElement('div');
+    Object.assign(tipDate.style, {
+      fontSize:'11px', color:'var(--brass)',
+      fontFamily:"'IM Fell English',serif", fontStyle:'italic',
+      marginBottom:'5px',
+    });
+    tipDate.textContent = doc.date || String(doc.year);
+
+    const tipHint = document.createElement('div');
+    Object.assign(tipHint.style, {
+      fontSize:'10px', color:'rgba(240,208,128,0.7)',
+      fontFamily:"'Cormorant Garamond',serif",
+      letterSpacing:'0.07em', textTransform:'uppercase',
+    });
+    tipHint.textContent = '↵ Click to ask';
+
+    tip.append(tipTitle, tipDate, tipHint);
+    wrap.appendChild(tip);
+
+    wrap.addEventListener('mouseenter', () => {
+      tip.style.display  = 'block';
+      dot.style.background = 'var(--brass)';
+      dot.style.boxShadow  = '0 0 8px rgba(184,134,11,1)';
+      dot.style.transform  = 'scale(1.8)';
+      wrap.style.zIndex    = '10';
+    });
+    wrap.addEventListener('mouseleave', () => {
+      tip.style.display  = 'none';
+      dot.style.background = 'var(--parchment)';
+      dot.style.boxShadow  = 'none';
+      dot.style.transform  = 'scale(1)';
+      wrap.style.zIndex    = '4';
+    });
+    wrap.addEventListener('click', ev => {
+      ev.stopPropagation();
+      document.getElementById('question-input').value = doc.question;
+      document.getElementById('question-input').scrollIntoView({behavior:'smooth',block:'center'});
+      document.getElementById('question-input').focus();
+    });
+
+    track.appendChild(wrap);
+  });
+}
+
+
+// ── Knowledge Base ────────────────────────────────────────
+let kbData = { corpus:[], principles:[], patterns:[] };
+let kbOpen = false;
+let currentKBTab = 'corpus';
+
+function toggleKB() {
+  kbOpen = !kbOpen;
+  document.getElementById('kb-body').classList.toggle('open', kbOpen);
+  document.getElementById('kb-toggle').textContent = kbOpen ? '▲ Hide' : '▼ Show';
+  if (kbOpen && !kbData.corpus.length) loadKB();
+}
+
+async function loadKB() {
+  try {
+    const [corpus, principles, patterns] = await Promise.all([
+      fetch('/api/corpus').then(r => r.json()),
+      fetch('/api/principles').then(r => r.json()),
+      fetch('/api/patterns').then(r => r.json())
+    ]);
+    kbData = { corpus, principles, patterns };
+    document.getElementById('kb-count-badge').textContent =
+      `${corpus.length} docs · ${principles.length} principles · ${patterns.length} patterns`;
+    renderKBTab(currentKBTab);
+  } catch(e) {
+    document.getElementById('kb-content').innerHTML =
+      '<p style="color:var(--ink-light);padding:16px;font-style:italic;">Could not load archive.</p>';
+  }
+}
+
+function showKBTab(tab, el) {
+  currentKBTab = tab;
+  document.querySelectorAll('.kb-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  if (kbData.corpus.length) renderKBTab(tab);
+}
+
+function renderKBTab(tab) {
+  const c = document.getElementById('kb-content');
+  if (tab === 'corpus') {
+    c.innerHTML = `<table class="kb-table">
+      <thead><tr><th>ID</th><th>Title</th><th>Date</th><th>Type</th><th>Link</th></tr></thead>
+      <tbody>${kbData.corpus.map(d => `<tr>
+        <td>${d.Document_ID}</td>
+        <td><strong>${d.Title}</strong></td>
+        <td>${d.Date}</td>
+        <td><span class="badge">${d.Type}</span></td>
+        <td>${d.Wikisource_URL ? `<a class="doc-link" href="${d.Wikisource_URL}" target="_blank">↗</a>` : ''}</td>
+      </tr>`).join('')}</tbody></table>`;
+  } else if (tab === 'principles') {
+    c.innerHTML = `<table class="kb-table">
+      <thead><tr><th>ID</th><th>Principle</th><th>Category</th></tr></thead>
+      <tbody>${kbData.principles.map(p => `<tr>
+        <td>${p.Principle_ID}</td>
+        <td><strong>${p.Principle_Name}</strong></td>
+        <td><span class="badge">${p.Category}</span></td>
+      </tr>`).join('')}</tbody></table>`;
+  } else {
+    c.innerHTML = `<table class="kb-table">
+      <thead><tr><th>ID</th><th>Pattern</th><th>Type</th></tr></thead>
+      <tbody>${kbData.patterns.map(r => `<tr>
+        <td>${r.Pattern_ID}</td>
+        <td><strong>${r.Pattern_Name}</strong></td>
+        <td><span class="badge">${r.Pattern_Type}</span></td>
+      </tr>`).join('')}</tbody></table>`;
+  }
+}
+
+// ── Init ─────────────────────────────────────────────────
+renderNotecards();
+</script>
+</body>
+</html>
