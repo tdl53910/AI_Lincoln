@@ -1,91 +1,111 @@
 # Lincoln Constitutional AI
 
-A digital humanities research instrument that lets you interrogate President Abraham Lincoln directly — in his own first-person voice — across 52 primary source documents spanning 1838–1865.
+A digital humanities research instrument for computational constitutional history. This system enables direct interrogation of Abraham Lincoln's political and constitutional thought through primary source documents spanning his entire public career (1838–1865).
 
-Built by Turner Lent at Cook & Tolley, LLP.
-
----
-
-## Features
-
-- **Dual-mode AI** — *Historian* mode answers strictly from primary sources; *Reasoner* mode applies Lincoln's constitutional philosophy to modern questions
-- **First-person voice** — Lincoln speaks as himself, quoting his own words naturally
-- **Neural TTS** — Microsoft Edge TTS (GuyNeural) with SSML prosody tuned to historical accounts of Lincoln's tenor voice and deliberate cadence
-- **Interactive timeline** — All 52 corpus documents plotted on a scrollable 1838–1865 timeline; click any marker to ask Lincoln about that document
-- **Language evolution map** — UMAP 2D projection of the full corpus, color-coded by year, document type, or constitutional principle
-- **Period aesthetic** — Library of Congress reading room design: parchment, burgundy, brass, Cormorant Garamond typography, Mathew Brady portrait
+**Live Site**: [https://0qfzch9rk9-8055.hosted.obvious.ai](https://0qfzch9rk9-8055.hosted.obvious.ai)
 
 ---
 
-## Corpus (52 Documents)
+## 🔍 Overview
 
-Spans Lincoln's full career: Lyceum Address (1838) through Last Public Address (1865). Includes:
-- All major speeches and debates (Lincoln-Douglas, Cooper Union, Gettysburg, both Inaugurals)
-- Executive orders and proclamations (Blockade, Habeas Corpus suspensions, Emancipation)
-- Key letters (Greeley, Corning, Conkling, Hooker, Grant, Bixby)
-- Congressional messages and State of the Union addresses
-- Reconstruction proclamations and the Lieber Code
+The Lincoln Constitutional AI project applies computational methods—semantic embedding, dimensionality reduction, and large language models—to the study of presidential rhetoric and constitutional interpretation. It provides scholars, students, and researchers with two complementary modes of inquiry:
 
-Primary source: *Collected Works of Abraham Lincoln*, Basler edition (University of Michigan).
+| Mode | Function |
+|------|----------|
+| **Historian** | Answers factual questions strictly from Lincoln's documented writings, speeches, and official acts. Responses quote primary sources directly and include citations. |
+| **Reasoner** | Applies Lincoln's constitutional principles and reasoning patterns to modern questions of governance, federalism, and executive power. Explicitly distinguishes between historical positions and their contemporary application. |
 
 ---
 
-## Tech Stack
+## ✨ Features
 
-| Layer | Technology |
-|-------|-----------|
-| Backend | Python / FastAPI |
-| AI | Obvious API (OpenAI-compatible) |
-| TTS | Microsoft Edge TTS — `en-US-GuyNeural` |
-| Visualization | Plotly.js + UMAP + TF-IDF/LSA |
-| Frontend | Vanilla HTML/CSS/JS (no framework) |
-| Typography | Cormorant Garamond, Lora, IM Fell English |
+### Dual-Mode Architecture
+- **Historian Mode**: Strict primary-source grounding with verbatim quotations and document citations
+- **Reasoner Mode**: Applies Lincoln's constitutional principles and reasoning patterns to contemporary questions
 
----
+### First-Person Voice
+Lincoln speaks as himself, quoting his own words naturally—not as a chatbot impersonation, but as a scholarly reconstruction grounded in the documentary record.
 
-## Setup
+### Neural Text-to-Speech
+Microsoft Edge TTS (en-US-GuyNeural) with SSML prosody tuned to historical accounts of Lincoln's voice:
+- Tenor range (higher pitch than expected for a tall man)
+- Deliberate, measured cadence
+- Kentucky-Indiana frontier rhythm with rising emphasis at key rhetorical moments
 
-```bash
-# 1. Install dependencies
-pip install -r requirements.txt
+### Interactive Visualizations
+- **Timeline Explorer**: Documents plotted chronologically (1838–1865); click any marker to ask Lincoln about that document
+- **Language Evolution Map**: UMAP 2D projection of the corpus, color-coded by year, document type, or constitutional principle
+- **Semantic Drift Analysis**: Visualizes how Lincoln's constitutional language evolved across his career
 
-# 2. Set environment variables
-export SECRET_LINCOLN_AI_KEY=your_openai_compatible_key
-export SECRET_OBVIOUS_API_BASE_URL=your_api_base_url
-
-# 3. Run
-python server.py
-# → http://localhost:8055
-```
-
-The visualization map is at `/viz`. The language evolution data is precomputed in `viz_data.json`.
+### Period-Aesthetic Interface
+Library of Congress reading room design: parchment textures, burgundy and brass accents, Cormorant Garamond typography, and Mathew Brady's iconic portrait.
 
 ---
 
-## Project Structure
+## 📚 Corpus
 
-```
-├── server.py           # FastAPI backend (AI queries, TTS, corpus API)
-├── index.html          # Main app
-├── viz.html            # Language evolution map
-├── viz_data.json       # Precomputed UMAP 2D coordinates (52 docs)
-├── lincoln_tts.py      # Edge-TTS neural voice module
-├── corpus/
-│   ├── Lincoln Corpus.csv
-│   ├── Constitutional Principles.csv
-│   └── Reasoning Patterns.csv
-└── requirements.txt
-```
+The knowledge base comprises primary source documents from the *Collected Works of Abraham Lincoln* (Basler edition, University of Michigan), carefully selected to represent the full arc of Lincoln's constitutional thought.
+
+### Document Types
+- Speeches (Lyceum Address, Gettysburg Address, Cooper Union)
+- Debates (Lincoln-Douglas Debates)
+- Letters (Greeley, Corning, Conkling, Hodges, Bixby)
+- Executive Orders & Proclamations (Blockade Proclamation, Habeas Corpus Suspensions, Emancipation Proclamation)
+- Messages to Congress (Annual Messages, Special Session Message)
+- Inaugural Addresses (First, Second)
+- Fragments & Memoranda
+
+### Chronological Scope
+- **Earliest**: Lyceum Address (January 27, 1838)
+- **Latest**: Last Public Address (April 11, 1865)
+- **Coverage**: Full span of Lincoln's public life
+
+### Key Themes
+- Union perpetuity and secession
+- Executive power in wartime
+- Habeas corpus and civil liberties
+- Emancipation and the Thirteenth Amendment
+- Declaration of Independence as constitutional lodestar
+- Free labor ideology and economic liberty
+- Reconstruction and reconciliation
 
 ---
 
-## Constitutional Knowledge Base
+## 🧠 Methodology
 
-- **52 primary source documents** with themes, constitutional significance, representative quotes, and Wikisource links
-- **15 constitutional principles** (CP001–CP015): Union perpetuity, war powers, habeas corpus, free labor, Declaration as lodestar, etc.
-- **13 reasoning patterns**: How Lincoln structured constitutional arguments across different domains
+### Semantic Embedding Pipeline
+Documents are embedded using `all-MiniLM-L6-v2`, creating vector representations that capture semantic content independent of specific word choice.
+
+### Dimensionality Reduction
+UMAP (Uniform Manifold Approximation and Projection) projects the high-dimensional semantic space into 2D for visualization, preserving both local and global structure.
+
+### Constitutional Principle Extraction
+Constitutional principles were inductively derived from close reading of the corpus, each with:
+- Textual basis in specific documents
+- Scholarly corroboration (Fehrenbacher, Foner, Guelzo, Jaffa, Zarefsky)
+- Applicability to modern constitutional questions
+
+### Reasoning Pattern Analysis
+Recurring argumentative structures were identified across Lincoln's rhetorical repertoire, including:
+- Means-ends constitutional reasoning
+- Historical precedent invocation
+- Founders' intent arguments
+- Slippery slope construction
+- Moral-constitutional synthesis
 
 ---
 
-*"Let us have faith that right makes might, and in that faith let us to the end dare to do our duty as we understand it."*
-— Abraham Lincoln, Cooper Union Address, 1860
+## 🛠️ Tech Stack
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Backend** | Python / FastAPI | API server, request routing, corpus access |
+| **AI/LLM** | Obvious API (OpenAI-compatible) | Constitutional reasoning and response generation |
+| **Embeddings** | sentence-transformers/all-MiniLM-L6-v2 | Document vectorization for semantic visualization |
+| **TTS** | Microsoft Edge TTS (en-US-GuyNeural) | Neural voice synthesis with historical prosody |
+| **Visualization** | Plotly.js + UMAP | Interactive language evolution map |
+| **Frontend** | Vanilla HTML/CSS/JavaScript | No framework—lightweight, self-contained |
+| **Typography** | Cormorant Garamond, Lora, IM Fell English | Period-appropriate aesthetic |
+| **Deployment** | Obvious Hosting | Live demo hosting |
+
+---
