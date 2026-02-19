@@ -686,8 +686,9 @@ body::before {
   border: 2px solid var(--border-heavy);
   border-radius: 3px;
   background: linear-gradient(180deg, var(--navy) 0%, #0a1628 100%);
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 3px 4px 18px var(--shadow-warm);
+  position: relative;
 }
 .timeline-header {
   padding: 12px 20px;
@@ -714,7 +715,7 @@ body::before {
 
 .timeline-body {
   display: none;
-  padding: 28px 20px 16px;
+  padding: 160px 20px 16px;
   overflow-x: auto;
   overflow-y: visible;
   -webkit-overflow-scrolling: touch;
@@ -1186,8 +1187,9 @@ html, body {
   .timeline-header    { padding: 10px 14px; }
   .timeline-header-left { font-size: 12px; gap: 6px; }
   .timeline-body {
-    padding: 12px 8px 10px;
+    padding: 120px 8px 10px;
     overflow-x: auto;
+  overflow-y: visible;
     overflow-y: visible;
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x proximity;
@@ -1764,7 +1766,7 @@ function buildTimeline() {
     const tip = document.createElement('div');
     Object.assign(tip.style, {
       position:'absolute',
-      bottom:'calc(100% - '+(LINE_Y - 5)+'px + 8px)',
+      top: '0px',   // will be repositioned in mouseenter
       left:'50%', transform:'translateX(-50%)',
       background:'#0a1628',
       border:'1.5px solid var(--brass)',
@@ -1804,10 +1806,13 @@ function buildTimeline() {
 
     wrap.addEventListener('mouseenter', () => {
       tip.style.display  = 'block';
+      // Position tooltip above the dot — LINE_Y=52, dot center at LINE_Y, tooltip above
+      const tipH = tip.offsetHeight || 90;
+      tip.style.top = (LINE_Y - 5 - tipH - 12) + 'px';
       dot.style.background = 'var(--brass)';
       dot.style.boxShadow  = '0 0 8px rgba(184,134,11,1)';
       dot.style.transform  = 'scale(1.8)';
-      wrap.style.zIndex    = '10';
+      wrap.style.zIndex    = '100';
     });
     wrap.addEventListener('mouseleave', () => {
       tip.style.display  = 'none';
