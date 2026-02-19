@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>Lincoln Constitutional AI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -974,149 +974,256 @@ body::before {
 }
 
 /* ══ RESPONSIVE / MOBILE ══════════════════════════════════════════════════════
-   Breakpoints: 768px (tablet), 480px (phone)
+   Three breakpoints:
+     960px  — constrain max-width (already handled by .main max-width)
+     768px  — tablet: shrink text, collapse some flex rows
+     480px  — phone: full single-column layout
+   Key principles:
+     • No horizontal overflow on body (overflow-x: hidden on html/body)
+     • All fixed px widths replaced with % or max-width
+     • Touch targets ≥ 44px
+     • Font sizes ≥ 13px for readability
+     • Notecards stack full-width
+     • Letter paper margin line hidden
+     • Voice bar wraps cleanly
+     • Timeline scrolls horizontally (touch-friendly)
+     • KB table hides low-priority columns
 ══════════════════════════════════════════════════════════════════════════════ */
 
-/* Tablet */
+/* Prevent any element from causing horizontal scroll */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* ── 768px: Tablet ─────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   /* Masthead */
-  .masthead-inner { padding: 16px 16px 12px; gap: 14px; }
-  .masthead-title { font-size: 22px; }
+  .masthead-inner {
+    padding: 14px 16px 10px;
+    gap: 12px;
+    flex-wrap: nowrap;
+  }
+  .portrait-wrap  { width: 80px;  height: 96px;  flex-shrink: 0; }
+  .portrait-frame { width: 80px;  height: 96px; }
+  .masthead-title    { font-size: 20px; }
   .masthead-subtitle { font-size: 12px; }
-  .masthead-byline { font-size: 10px; }
-  .portrait-wrap { width: 80px; height: 96px; flex-shrink: 0; }
-  .portrait-frame { width: 80px; height: 96px; }
+  .masthead-byline   { font-size: 10px; }
 
   /* Tab bar */
-  .tab-bar { padding: 0 12px; flex-wrap: wrap; gap: 4px; }
-  .tab-btn { padding: 7px 14px; font-size: 12px; }
-  .viz-nav-btn { padding: 6px 12px; font-size: 11px; margin-bottom: 4px; }
+  .tab-bar { padding: 0 12px; gap: 3px; flex-wrap: wrap; }
+  .tab-btn  { padding: 7px 14px; font-size: 12px; }
 
-  /* Main content */
+  /* Main */
   .main { padding: 16px; gap: 18px; }
-  .mode-context { padding: 14px 16px; }
+
+  /* Mode context */
+  .mode-context       { padding: 14px 16px; }
   .mode-context-title { font-size: 18px; }
 
   /* Query */
   .query-input-row { flex-direction: column; }
-  .ask-btn { width: 100%; height: 44px; }
-  .notecards { gap: 8px; }
-  .notecard { max-width: 100%; }
+  .ask-btn         { width: 100%; height: 48px; font-size: 15px; }
 
-  /* Response letter */
+  /* Notecards — 2-column grid */
+  .notecards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .notecard  { max-width: 100%; }
+
+  /* Letter */
   .letter-paper::before { display: none; }
-  .letter-header { padding: 14px 16px; flex-wrap: wrap; gap: 8px; }
-  .letter-stamp { display: none; }
-  .letter-re { max-width: 100%; text-align: left; }
-  .letter-body { padding: 16px; font-size: 13.5px; }
+  .letter-header        { padding: 14px 16px; flex-wrap: wrap; gap: 8px; }
+  .letter-stamp         { display: none; }
+  .letter-re            { max-width: 100%; text-align: left; }
+  .letter-body          { padding: 16px; font-size: 13.5px; }
+
+  /* Voice bar */
   .voice-bar { padding: 12px 16px; flex-wrap: wrap; gap: 10px; }
 
   /* Timeline */
-  .timeline-body { padding: 16px 12px; }
-  .timeline-track { min-width: 600px; }
+  .timeline-body  { padding: 16px 12px 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .timeline-track { min-width: 1000px; }
 
   /* KB */
-  .kb-tabs { flex-wrap: wrap; }
-  .kb-table th, .kb-table td { padding: 6px 8px; font-size: 11px; }
+  .kb-tabs                        { flex-wrap: wrap; gap: 4px; }
+  .kb-table th, .kb-table td      { padding: 6px 8px; font-size: 11px; }
 }
 
-/* Phone */
+/* ── 480px: Phone ──────────────────────────────────────────────────────────── */
 @media (max-width: 480px) {
-  /* Masthead — stack portrait + text vertically */
-  .masthead-inner {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 14px 14px 10px;
-    gap: 10px;
-  }
-  .portrait-wrap { width: 64px; height: 76px; }
-  .portrait-frame { width: 64px; height: 76px; }
-  .masthead-title { font-size: 18px; line-height: 1.2; }
-  .masthead-subtitle { font-size: 11px; }
-  .masthead-byline { display: none; }
-  .masthead-seal { font-size: 9px; }
 
-  /* Tab bar — full width pills, wrap */
-  .tab-bar {
-    padding: 0 10px;
-    flex-direction: row;
-    flex-wrap: wrap;
+  /* ── Masthead ── */
+  .masthead-inner {
+    flex-direction: row;        /* keep portrait + text side by side */
     align-items: flex-start;
-    gap: 4px;
+    padding: 12px 12px 8px;
+    gap: 10px;
+    flex-wrap: nowrap;
+  }
+  .portrait-wrap  { width: 60px; height: 72px; flex-shrink: 0; }
+  .portrait-frame { width: 60px; height: 72px; }
+  .masthead-seal     { font-size: 9px;  letter-spacing: 0.15em; }
+  .masthead-title    { font-size: 16px; line-height: 1.2; }
+  .masthead-subtitle { font-size: 11px; }
+  .masthead-rule     { margin: 6px 0 5px; }
+  .masthead-byline   { display: none; }
+
+  /* ── Tab bar: two tabs + viz button all wrap cleanly ── */
+  .tab-bar {
+    padding: 0 8px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 3px;
+    width: 100%;
   }
   .tab-btn {
-    padding: 6px 12px;
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 7px 10px;
     font-size: 11px;
-    border-radius: 3px 3px 0 0;
-    flex: 1;
     text-align: center;
     white-space: nowrap;
-    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  /* Viz nav button — full width below tabs */
+  /* Viz nav link — full width below the two tabs */
   a[href="/viz"] {
-    width: calc(100% - 20px) !important;
-    margin: 4px 10px 0 !important;
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    margin: 2px 0 0 !important;
     border-radius: 3px !important;
     justify-content: center !important;
-    font-size: 12px !important;
+    font-size: 11px !important;
+    padding: 7px 12px !important;
+    box-sizing: border-box !important;
   }
 
-  /* Main */
-  .main { padding: 12px; gap: 14px; }
+  /* ── Main content ── */
+  .main { padding: 10px; gap: 12px; }
 
-  /* Mode context card */
-  .mode-context { padding: 12px 14px; border-radius: 2px; }
-  .mode-context-title { font-size: 16px; }
-  .mode-context-desc { font-size: 12px; }
-  .mode-stamp { font-size: 10px; }
+  /* ── Mode context card ── */
+  .mode-context       { padding: 12px 12px; }
+  .mode-context-title { font-size: 15px; }
+  .mode-context-desc  { font-size: 12px; line-height: 1.55; }
+  .mode-stamp         { font-size: 10px; padding: 2px 8px; }
+  .mode-context::before { font-size: 14px; top: -12px; }
 
-  /* Query section */
-  .query-label { font-size: 13px; }
-  .query-textarea { font-size: 13px; min-height: 80px; padding: 10px 12px; }
-  .ask-btn { font-size: 14px; }
-  .notecards-label { font-size: 11px; }
-  .notecard { max-width: 100%; }
-  .notecard-text { font-size: 11px; }
+  /* ── Query section ── */
+  .query-label    { font-size: 13px; }
+  .query-textarea {
+    font-size: 14px;
+    min-height: 90px;
+    padding: 10px 12px;
+    border-radius: 3px;
+  }
+  .query-input-row { gap: 8px; }
+  .ask-btn {
+    width: 100%;
+    height: 48px;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+  }
+  .notecards-label { font-size: 11px; margin-bottom: 6px; }
 
-  /* Response letter */
-  .letter-header { padding: 12px 12px; flex-direction: column; gap: 6px; }
-  .letter-from { font-size: 11px; }
-  .letter-date { font-size: 11px; }
-  .letter-re { display: none; }
+  /* Notecards — single column on small phones */
+  .notecards {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .notecard {
+    max-width: 100%;
+    padding: 10px 12px;
+  }
+  .notecard-text { font-size: 12px; }
+  .notecard-ask  { font-size: 11px; }
+
+  /* Quill loader */
+  .quill-loader { font-size: 12px; }
+
+  /* ── Response letter ── */
+  .letter-paper::before { display: none; }
+  .letter-paper::after  { display: none; } /* hide ruled lines on mobile */
+  .letter-header {
+    padding: 10px 12px;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .letter-from  { font-size: 11px; }
+  .letter-date  { font-size: 11px; }
+  .letter-re    { display: none; }
   .letter-stamp { display: none; }
-  .letter-body { padding: 12px; font-size: 13px; line-height: 1.75; }
-
-  /* Voice bar */
-  .voice-bar { padding: 10px 12px; gap: 8px; }
-  .voice-btn { padding: 7px 12px; font-size: 12px; }
-  .voice-meta { display: none; }
-
-  /* Timeline — horizontal scroll only, no overflow clipping */
-  .timeline-section { overflow: hidden; }
-  .timeline-body {
-    padding: 12px 8px 12px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  .letter-body  {
+    padding: 12px;
+    font-size: 13px;
+    line-height: 1.75;
   }
-  .timeline-header-left { font-size: 12px; }
-  .timeline-track { min-width: 700px; height: 100px; }
 
-  /* KB */
+  /* ── Voice bar ── */
+  .voice-bar {
+    padding: 10px 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .voice-btn {
+    flex: 1 1 auto;
+    padding: 8px 12px;
+    font-size: 12px;
+    min-height: 44px;
+  }
+  .voice-meta   { display: none; }
+  .voice-stop-btn {
+    padding: 8px 12px;
+    min-height: 44px;
+    font-size: 12px;
+  }
+  /* Voice settings panel */
+  .voice-settings-panel { padding: 12px; gap: 12px; }
+  .voice-setting        { min-width: 100%; }
+
+  /* ── Timeline ── */
+  .timeline-section   { overflow: hidden; }
+  .timeline-header    { padding: 10px 14px; }
+  .timeline-header-left { font-size: 12px; gap: 6px; }
+  .timeline-body {
+    padding: 12px 8px 10px;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+  }
+  .timeline-track { min-width: 1400px; height: 110px; }
+
+  /* ── Knowledge Base ── */
+  .kb-section   { border-width: 1.5px; }
+  .kb-header    { padding: 10px 14px; }
   .kb-header-left { font-size: 12px; }
-  .kb-tabs { gap: 4px; flex-wrap: wrap; }
-  .kb-tab { font-size: 11px; padding: 4px 10px; }
-  .kb-table { font-size: 11px; }
-  .kb-table th { font-size: 10px; padding: 5px 6px; }
-  .kb-table td { padding: 5px 6px; }
-  /* Hide less important columns on mobile */
-  .kb-table th:nth-child(n+4),
-  .kb-table td:nth-child(n+4) { display: none; }
+  .kb-body      { padding: 10px; }
+  .kb-tabs      { flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+  .kb-tab       { font-size: 11px; padding: 4px 10px; }
+  .kb-table     { font-size: 11px; }
+  .kb-table th  { font-size: 10px; padding: 5px 6px; }
+  .kb-table td  { padding: 5px 6px; }
+  /* Hide lower-priority columns: Type, Link on corpus; Category on principles */
+  .kb-table th:nth-child(4),
+  .kb-table td:nth-child(4),
+  .kb-table th:nth-child(5),
+  .kb-table td:nth-child(5) { display: none; }
 
-  /* Disclaimer */
-  .disclaimer { font-size: 10px; padding-top: 12px; }
+  /* ── Disclaimer ── */
+  .disclaimer { font-size: 10px; padding-top: 10px; line-height: 1.5; }
 }
-</style>
+
+/* ── 360px: Very small phones (Galaxy S8, iPhone SE) ─────────────────────── */
+@media (max-width: 360px) {
+  .masthead-title { font-size: 14px; }
+  .portrait-wrap  { width: 50px; height: 60px; flex-shrink: 0; }
+  .portrait-frame { width: 50px; height: 60px; }
+  .tab-btn        { font-size: 10px; padding: 6px 8px; }
+  .main           { padding: 8px; }
+  .letter-body    { font-size: 12.5px; }
+  .ask-btn        { font-size: 13px; }
+}</style>
 </head>
 <body>
 
@@ -1142,7 +1249,7 @@ body::before {
     </div>
   </div>
   <!-- Folder tabs -->
-  <div class="tab-bar" style="display:flex;align-items:flex-end;justify-content:space-between;width:100%;max-width:960px;margin:0 auto;">
+  <div class="tab-bar" style="display:flex;align-items:flex-end;justify-content:space-between;width:100%;max-width:960px;margin:0 auto;flex-wrap:wrap;">
     <div style="display:flex;gap:0;">
       <button class="tab-btn active" id="tab-historian" onclick="setMode('historian')">📜 &nbsp;The Historian</button>
       <button class="tab-btn" id="tab-reasoner" onclick="setMode('reasoner')">⚖️ &nbsp;The Reasoner</button>
@@ -1242,7 +1349,7 @@ body::before {
     </div>
     <div class="kb-body" id="kb-body">
       <div class="kb-tabs">
-        <button class="kb-tab active" onclick="showKBTab('corpus',this)">Corpus (52)</button>
+        <button class="kb-tab active" onclick="showKBTab('corpus',this)">Corpus (67)</button>
         <button class="kb-tab" onclick="showKBTab('principles',this)">Principles (15)</button>
         <button class="kb-tab" onclick="showKBTab('patterns',this)">Patterns (13)</button>
       </div>
@@ -1536,7 +1643,7 @@ function showVoiceBar(show) {
 }
 
 // ── Timeline ──────────────────────────────────────────────
-const TIMELINE_DOCS = [{"id": "DOC001", "year": 1838, "month": 1, "label": "Lyceum Address", "title": "Lyceum Address (The Perpetuation of Our Political Institutions)", "question": "Mr. President, regarding your Lyceum Address (The Perpetuation of Our Political Institutions) (January 27, 1838), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC038", "year": 1842, "month": 2, "label": "Temperance Address", "title": "Temperance Address (Washington Society Speech)", "question": "Mr. President, regarding your Temperance Address (Washington Society Speech) (February 22, 1842), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC039", "year": 1852, "month": 7, "label": "Eulogy on Henry Clay", "title": "Eulogy on Henry Clay", "question": "Mr. President, regarding your Eulogy on Henry Clay (July 06, 1852), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC019", "year": 1854, "month": 10, "label": "Speech on the…", "title": "Speech on the Repeal of the Missouri Compromise (Peoria Speech)", "question": "Mr. President, regarding your Speech on the Repeal of the Missouri Compromise (Peoria Speech) (October 16, 1854), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC040", "year": 1856, "month": 8, "label": "Speech at…", "title": "Speech at Kalamazoo, Michigan", "question": "Mr. President, regarding your Speech at Kalamazoo, Michigan (August 27, 1856), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC041", "year": 1858, "month": 6, "label": "House Divided Speech", "title": "House Divided Speech (Republican State Convention)", "question": "Mr. President, regarding your House Divided Speech (Republican State Convention) (June 16, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC020", "year": 1858, "month": 8, "label": "First…", "title": "First Lincoln-Douglas Debate, Ottawa, Illinois", "question": "Mr. President, regarding your First Lincoln-Douglas Debate, Ottawa, Illinois (August 21, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC021", "year": 1858, "month": 8, "label": "Second…", "title": "Second Lincoln-Douglas Debate, Freeport, Illinois", "question": "Mr. President, regarding your Second Lincoln-Douglas Debate, Freeport, Illinois (August 27, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC022", "year": 1858, "month": 9, "label": "Third…", "title": "Third Lincoln-Douglas Debate, Jonesboro, Illinois", "question": "Mr. President, regarding your Third Lincoln-Douglas Debate, Jonesboro, Illinois (September 15, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC023", "year": 1858, "month": 9, "label": "Fourth…", "title": "Fourth Lincoln-Douglas Debate, Charleston, Illinois", "question": "Mr. President, regarding your Fourth Lincoln-Douglas Debate, Charleston, Illinois (September 18, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC024", "year": 1858, "month": 10, "label": "Fifth…", "title": "Fifth Lincoln-Douglas Debate, Galesburg, Illinois", "question": "Mr. President, regarding your Fifth Lincoln-Douglas Debate, Galesburg, Illinois (October 07, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC025", "year": 1858, "month": 10, "label": "Sixth…", "title": "Sixth Lincoln-Douglas Debate, Quincy, Illinois", "question": "Mr. President, regarding your Sixth Lincoln-Douglas Debate, Quincy, Illinois (October 13, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC026", "year": 1858, "month": 10, "label": "Seventh…", "title": "Seventh Lincoln-Douglas Debate, Alton, Illinois", "question": "Mr. President, regarding your Seventh Lincoln-Douglas Debate, Alton, Illinois (October 15, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC002", "year": 1860, "month": 1, "label": "Fragment on the…", "title": "Fragment on the Constitution and the Union", "question": "Mr. President, regarding your Fragment on the Constitution and the Union (January 01, 1860), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC017", "year": 1860, "month": 2, "label": "Cooper Union Address", "title": "Cooper Union Address", "question": "Mr. President, regarding your Cooper Union Address (February 27, 1860), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC003", "year": 1861, "month": 3, "label": "First Inaugural…", "title": "First Inaugural Address", "question": "Mr. President, regarding your First Inaugural Address (March 04, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC005", "year": 1861, "month": 4, "label": "Order to Suspend…", "title": "Order to Suspend Habeas Corpus", "question": "Mr. President, regarding your Order to Suspend Habeas Corpus (April 27, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC042", "year": 1861, "month": 4, "label": "Proclamation of…", "title": "Proclamation of Blockade of Southern Ports", "question": "Mr. President, regarding your Proclamation of Blockade of Southern Ports (April 19, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC043", "year": 1861, "month": 4, "label": "Proclamation…", "title": "Proclamation Calling Forth the Militia (75,000 troops)", "question": "Mr. President, regarding your Proclamation Calling Forth the Militia (75,000 troops) (April 15, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC004", "year": 1861, "month": 7, "label": "Message to Congress…", "title": "Message to Congress in Special Session", "question": "Mr. President, regarding your Message to Congress in Special Session (July 04, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC046", "year": 1861, "month": 9, "label": "Letter to Orville…", "title": "Letter to Orville H. Browning on Frémont's Proclamation", "question": "Mr. President, regarding your Letter to Orville H. Browning on Frémont's Proclamation (September 22, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC006", "year": 1861, "month": 12, "label": "Annual Message to…", "title": "Annual Message to Congress (First)", "question": "Mr. President, regarding your Annual Message to Congress (First) (December 03, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC051", "year": 1862, "month": 3, "label": "Message to Congress…", "title": "Message to Congress Proposing Compensated Emancipation", "question": "Mr. President, regarding your Message to Congress Proposing Compensated Emancipation (March 06, 1862), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC047", "year": 1862, "month": 8, "label": "Letter to Horace…", "title": "Letter to Horace Greeley ('If I could save the Union')", "question": "Mr. President, regarding your Letter to Horace Greeley ('If I could save the Union') (August 22, 1862), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC007", "year": 1862, "month": 9, "label": "Preliminary…", "title": "Preliminary Emancipation Proclamation", "question": "Mr. President, regarding your Preliminary Emancipation Proclamation (September 22, 1862), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC027", "year": 1862, "month": 9, "label": "Proclamation…", "title": "Proclamation Suspending Habeas Corpus (Revised)", "question": "Mr. President, regarding your Proclamation Suspending Habeas Corpus (Revised) (September 24, 1862), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC028", "year": 1862, "month": 9, "label": "Proclamation of…", "title": "Proclamation of Emancipation (Preliminary)", "question": "Mr. President, regarding your Proclamation of Emancipation (Preliminary) (September 22, 1862), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC008", "year": 1862, "month": 12, "label": "Annual Message to…", "title": "Annual Message to Congress (Second)", "question": "Mr. President, regarding your Annual Message to Congress (Second) (December 01, 1862), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC009", "year": 1863, "month": 1, "label": "Final Emancipation…", "title": "Final Emancipation Proclamation", "question": "Mr. President, regarding your Final Emancipation Proclamation (January 01, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC029", "year": 1863, "month": 1, "label": "Proclamation of…", "title": "Proclamation of Emancipation (Final)", "question": "Mr. President, regarding your Proclamation of Emancipation (Final) (January 01, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC033", "year": 1863, "month": 1, "label": "Letter to General…", "title": "Letter to General Joseph Hooker", "question": "Mr. President, regarding your Letter to General Joseph Hooker (January 26, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC032", "year": 1863, "month": 3, "label": "Executive Order…", "title": "Executive Order Establishing the National Academy of Sciences", "question": "Mr. President, regarding your Executive Order Establishing the National Academy of Sciences (March 03, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC044", "year": 1863, "month": 4, "label": "Executive Order —…", "title": "Executive Order — Lieber Code (General Orders No. 100)", "question": "Mr. President, regarding your Executive Order — Lieber Code (General Orders No. 100) (April 24, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC010", "year": 1863, "month": 6, "label": "Letter to Erastus…", "title": "Letter to Erastus Corning and Others", "question": "Mr. President, regarding your Letter to Erastus Corning and Others (June 23, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC048", "year": 1863, "month": 8, "label": "Letter to James C.…", "title": "Letter to James C. Conkling (Read to Springfield Rally)", "question": "Mr. President, regarding your Letter to James C. Conkling (Read to Springfield Rally) (August 26, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC045", "year": 1863, "month": 9, "label": "Proclamation…", "title": "Proclamation Suspending Habeas Corpus Nationwide", "question": "Mr. President, regarding your Proclamation Suspending Habeas Corpus Nationwide (September 15, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC049", "year": 1863, "month": 10, "label": "Proclamation of…", "title": "Proclamation of Thanksgiving (first national Thanksgiving)", "question": "Mr. President, regarding your Proclamation of Thanksgiving (first national Thanksgiving) (October 03, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC011", "year": 1863, "month": 11, "label": "Gettysburg Address", "title": "Gettysburg Address", "question": "Mr. President, regarding your Gettysburg Address (November 19, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC037", "year": 1863, "month": 11, "label": "Remarks at…", "title": "Remarks at Gettysburg Dedication Ceremony", "question": "Mr. President, regarding your Remarks at Gettysburg Dedication Ceremony (November 19, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC012", "year": 1863, "month": 12, "label": "Proclamation of…", "title": "Proclamation of Amnesty and Reconstruction", "question": "Mr. President, regarding your Proclamation of Amnesty and Reconstruction (December 08, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC031", "year": 1863, "month": 12, "label": "Proclamation of…", "title": "Proclamation of Amnesty and Reconstruction (10% Plan)", "question": "Mr. President, regarding your Proclamation of Amnesty and Reconstruction (10% Plan) (December 08, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC036", "year": 1864, "month": 3, "label": "Address to the New…", "title": "Address to the New York Workingmen's Democratic Republican Association", "question": "Mr. President, regarding your Address to the New York Workingmen's Democratic Republican Association (March 21, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC013", "year": 1864, "month": 4, "label": "Letter to Albert G.…", "title": "Letter to Albert G. Hodges", "question": "Mr. President, regarding your Letter to Albert G. Hodges (April 04, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC014", "year": 1864, "month": 4, "label": "Address at Sanitary…", "title": "Address at Sanitary Fair Baltimore", "question": "Mr. President, regarding your Address at Sanitary Fair Baltimore (April 18, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC034", "year": 1864, "month": 4, "label": "Letter to General…", "title": "Letter to General Ulysses S. Grant", "question": "Mr. President, regarding your Letter to General Ulysses S. Grant (April 30, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC052", "year": 1864, "month": 6, "label": "Address at Sanitary…", "title": "Address at Sanitary Fair, Philadelphia", "question": "Mr. President, regarding your Address at Sanitary Fair, Philadelphia (June 16, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC035", "year": 1864, "month": 11, "label": "Letter to Mrs.…", "title": "Letter to Mrs. Lydia Bixby", "question": "Mr. President, regarding your Letter to Mrs. Lydia Bixby (November 21, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC050", "year": 1864, "month": 11, "label": "Response to a…", "title": "Response to a Serenade (on re-election, November 10, 1864)", "question": "Mr. President, regarding your Response to a Serenade (on re-election, November 10, 1864) (November 10, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC018", "year": 1864, "month": 12, "label": "Annual Message to…", "title": "Annual Message to Congress (Fourth)", "question": "Mr. President, regarding your Annual Message to Congress (Fourth) (December 06, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC015", "year": 1865, "month": 3, "label": "Second Inaugural…", "title": "Second Inaugural Address", "question": "Mr. President, regarding your Second Inaugural Address (March 04, 1865), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC030", "year": 1865, "month": 3, "label": "Order Establishing…", "title": "Order Establishing the Bureau of Refugees, Freedmen, and Abandoned Lands", "question": "Mr. President, regarding your Order Establishing the Bureau of Refugees, Freedmen, and Abandoned Lands (March 03, 1865), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC016", "year": 1865, "month": 4, "label": "Last Public Address", "title": "Last Public Address", "question": "Mr. President, regarding your Last Public Address (April 11, 1865), what was your core constitutional argument and why did you judge it necessary?"}];
+const TIMELINE_DOCS = [{"id": "DOC053", "year": 1837, "month": 1, "label": "Speech in the…", "title": "Speech in the Illinois Legislature on the State Bank", "question": "Mr. President, regarding your Speech in the Illinois Legislature on the State Bank (January 11, 1837), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC001", "year": 1838, "month": 1, "label": "Lyceum Address", "title": "Lyceum Address (The Perpetuation of Our Political Institutions)", "question": "Mr. President, regarding your Lyceum Address (The Perpetuation of Our Political Institutions) (January 27, 1838), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC054", "year": 1838, "month": 1, "label": "Address to the…", "title": "Address to the Young Men's Lyceum of Springfield (Full Text)", "question": "Mr. President, regarding your Address to the Young Men's Lyceum of Springfield (Full Text) (January 27, 1838), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC038", "year": 1842, "month": 2, "label": "Temperance Address", "title": "Temperance Address (Washington Society Speech)", "question": "Mr. President, regarding your Temperance Address (Washington Society Speech) (February 22, 1842), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC055", "year": 1848, "month": 1, "label": "Speech in Congress…", "title": "Speech in Congress on the Mexican War (Spot Resolutions)", "question": "Mr. President, regarding your Speech in Congress on the Mexican War (Spot Resolutions) (January 12, 1848), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC039", "year": 1852, "month": 7, "label": "Eulogy on Henry Clay", "title": "Eulogy on Henry Clay", "question": "Mr. President, regarding your Eulogy on Henry Clay (July 06, 1852), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC056", "year": 1854, "month": 7, "label": "Fragment on Slavery", "title": "Fragment on Slavery", "question": "Mr. President, regarding your Fragment on Slavery (July 01, 1854), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC019", "year": 1854, "month": 10, "label": "Speech on the…", "title": "Speech on the Repeal of the Missouri Compromise (Peoria Speech)", "question": "Mr. President, regarding your Speech on the Repeal of the Missouri Compromise (Peoria Speech) (October 16, 1854), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC057", "year": 1855, "month": 8, "label": "Letter to Joshua…", "title": "Letter to Joshua Speed on Slavery and the Constitution", "question": "Mr. President, regarding your Letter to Joshua Speed on Slavery and the Constitution (August 24, 1855), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC040", "year": 1856, "month": 8, "label": "Speech at…", "title": "Speech at Kalamazoo, Michigan", "question": "Mr. President, regarding your Speech at Kalamazoo, Michigan (August 27, 1856), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC058", "year": 1857, "month": 5, "label": "Fragment on the…", "title": "Fragment on the Dred Scott Case", "question": "Mr. President, regarding your Fragment on the Dred Scott Case (May 18, 1857), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC041", "year": 1858, "month": 6, "label": "House Divided Speech", "title": "House Divided Speech (Republican State Convention)", "question": "Mr. President, regarding your House Divided Speech (Republican State Convention) (June 16, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC020", "year": 1858, "month": 8, "label": "First…", "title": "First Lincoln-Douglas Debate, Ottawa, Illinois", "question": "Mr. President, regarding your First Lincoln-Douglas Debate, Ottawa, Illinois (August 21, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC021", "year": 1858, "month": 8, "label": "Second…", "title": "Second Lincoln-Douglas Debate, Freeport, Illinois", "question": "Mr. President, regarding your Second Lincoln-Douglas Debate, Freeport, Illinois (August 27, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC022", "year": 1858, "month": 9, "label": "Third…", "title": "Third Lincoln-Douglas Debate, Jonesboro, Illinois", "question": "Mr. President, regarding your Third Lincoln-Douglas Debate, Jonesboro, Illinois (September 15, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC023", "year": 1858, "month": 9, "label": "Fourth…", "title": "Fourth Lincoln-Douglas Debate, Charleston, Illinois", "question": "Mr. President, regarding your Fourth Lincoln-Douglas Debate, Charleston, Illinois (September 18, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC024", "year": 1858, "month": 10, "label": "Fifth…", "title": "Fifth Lincoln-Douglas Debate, Galesburg, Illinois", "question": "Mr. President, regarding your Fifth Lincoln-Douglas Debate, Galesburg, Illinois (October 07, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC025", "year": 1858, "month": 10, "label": "Sixth…", "title": "Sixth Lincoln-Douglas Debate, Quincy, Illinois", "question": "Mr. President, regarding your Sixth Lincoln-Douglas Debate, Quincy, Illinois (October 13, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC026", "year": 1858, "month": 10, "label": "Seventh…", "title": "Seventh Lincoln-Douglas Debate, Alton, Illinois", "question": "Mr. President, regarding your Seventh Lincoln-Douglas Debate, Alton, Illinois (October 15, 1858), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC002", "year": 1860, "month": 1, "label": "Fragment on the…", "title": "Fragment on the Constitution and the Union", "question": "Mr. President, regarding your Fragment on the Constitution and the Union (January 01, 1860), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC017", "year": 1860, "month": 2, "label": "Cooper Union Address", "title": "Cooper Union Address", "question": "Mr. President, regarding your Cooper Union Address (February 27, 1860), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC059", "year": 1861, "month": 2, "label": "Farewell Address at…", "title": "Farewell Address at Springfield", "question": "Mr. President, regarding your Farewell Address at Springfield (February 11, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC003", "year": 1861, "month": 3, "label": "First Inaugural…", "title": "First Inaugural Address", "question": "Mr. President, regarding your First Inaugural Address (March 04, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC005", "year": 1861, "month": 4, "label": "Order to Suspend…", "title": "Order to Suspend Habeas Corpus", "question": "Mr. President, regarding your Order to Suspend Habeas Corpus (April 27, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC042", "year": 1861, "month": 4, "label": "Proclamation of…", "title": "Proclamation of Blockade of Southern Ports", "question": "Mr. President, regarding your Proclamation of Blockade of Southern Ports (April 19, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC043", "year": 1861, "month": 4, "label": "Proclamation…", "title": "Proclamation Calling Forth the Militia (75,000 troops)", "question": "Mr. President, regarding your Proclamation Calling Forth the Militia (75,000 troops) (April 15, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC060", "year": 1861, "month": 5, "label": "Message to…", "title": "Message to Congress: Requesting War Powers and Funding", "question": "Mr. President, regarding your Message to Congress: Requesting War Powers and Funding (May 26, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC004", "year": 1861, "month": 7, "label": "Message to Congress…", "title": "Message to Congress in Special Session", "question": "Mr. President, regarding your Message to Congress in Special Session (July 04, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC046", "year": 1861, "month": 9, "label": "Letter to Orville…", "title": "Letter to Orville H. Browning on Frémont's Proclamation", "question": "Mr. President, regarding your Letter to Orville H. Browning on Frémont's Proclamation (September 22, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC006", "year": 1861, "month": 12, "label": "Annual Message to…", "title": "Annual Message to Congress (First)", "question": "Mr. President, regarding your Annual Message to Congress (First) (December 03, 1861), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC051", "year": 1862, "month": 3, "label": "Message to Congress…", "title": "Message to Congress Proposing Compensated Emancipation", "question": "Mr. President, regarding your Message to Congress Proposing Compensated Emancipation (March 06, 1862), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC047", "year": 1862, "month": 8, "label": "Letter to Horace…", "title": "Letter to Horace Greeley ('If I could save the Union')", "question": "Mr. President, regarding your Letter to Horace Greeley ('If I could save the Union') (August 22, 1862), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC061", "year": 1862, "month": 8, "label": "Address on…", "title": "Address on Colonization to a Deputation of Negroes", "question": "Mr. President, regarding your Address on Colonization to a Deputation of Negroes (August 14, 1862), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC007", "year": 1862, "month": 9, "label": "Preliminary…", "title": "Preliminary Emancipation Proclamation", "question": "Mr. President, regarding your Preliminary Emancipation Proclamation (September 22, 1862), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC027", "year": 1862, "month": 9, "label": "Proclamation…", "title": "Proclamation Suspending Habeas Corpus (Revised)", "question": "Mr. President, regarding your Proclamation Suspending Habeas Corpus (Revised) (September 24, 1862), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC028", "year": 1862, "month": 9, "label": "Proclamation of…", "title": "Proclamation of Emancipation (Preliminary)", "question": "Mr. President, regarding your Proclamation of Emancipation (Preliminary) (September 22, 1862), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC008", "year": 1862, "month": 12, "label": "Annual Message to…", "title": "Annual Message to Congress (Second)", "question": "Mr. President, regarding your Annual Message to Congress (Second) (December 01, 1862), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC009", "year": 1863, "month": 1, "label": "Final Emancipation…", "title": "Final Emancipation Proclamation", "question": "Mr. President, regarding your Final Emancipation Proclamation (January 01, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC029", "year": 1863, "month": 1, "label": "Proclamation of…", "title": "Proclamation of Emancipation (Final)", "question": "Mr. President, regarding your Proclamation of Emancipation (Final) (January 01, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC033", "year": 1863, "month": 1, "label": "Letter to General…", "title": "Letter to General Joseph Hooker", "question": "Mr. President, regarding your Letter to General Joseph Hooker (January 26, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC032", "year": 1863, "month": 3, "label": "Executive Order…", "title": "Executive Order Establishing the National Academy of Sciences", "question": "Mr. President, regarding your Executive Order Establishing the National Academy of Sciences (March 03, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC044", "year": 1863, "month": 4, "label": "Executive Order —…", "title": "Executive Order — Lieber Code (General Orders No. 100)", "question": "Mr. President, regarding your Executive Order — Lieber Code (General Orders No. 100) (April 24, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC010", "year": 1863, "month": 6, "label": "Letter to Erastus…", "title": "Letter to Erastus Corning and Others", "question": "Mr. President, regarding your Letter to Erastus Corning and Others (June 23, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC048", "year": 1863, "month": 8, "label": "Letter to James C.…", "title": "Letter to James C. Conkling (Read to Springfield Rally)", "question": "Mr. President, regarding your Letter to James C. Conkling (Read to Springfield Rally) (August 26, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC045", "year": 1863, "month": 9, "label": "Proclamation…", "title": "Proclamation Suspending Habeas Corpus Nationwide", "question": "Mr. President, regarding your Proclamation Suspending Habeas Corpus Nationwide (September 15, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC062", "year": 1863, "month": 9, "label": "Letter to Salmon P.…", "title": "Letter to Salmon P. Chase on the Emancipation Proclamation", "question": "Mr. President, regarding your Letter to Salmon P. Chase on the Emancipation Proclamation (September 02, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC049", "year": 1863, "month": 10, "label": "Proclamation of…", "title": "Proclamation of Thanksgiving (first national Thanksgiving)", "question": "Mr. President, regarding your Proclamation of Thanksgiving (first national Thanksgiving) (October 03, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC011", "year": 1863, "month": 11, "label": "Gettysburg Address", "title": "Gettysburg Address", "question": "Mr. President, regarding your Gettysburg Address (November 19, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC037", "year": 1863, "month": 11, "label": "Remarks at…", "title": "Remarks at Gettysburg Dedication Ceremony", "question": "Mr. President, regarding your Remarks at Gettysburg Dedication Ceremony (November 19, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC012", "year": 1863, "month": 12, "label": "Proclamation of…", "title": "Proclamation of Amnesty and Reconstruction", "question": "Mr. President, regarding your Proclamation of Amnesty and Reconstruction (December 08, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC031", "year": 1863, "month": 12, "label": "Proclamation of…", "title": "Proclamation of Amnesty and Reconstruction (10% Plan)", "question": "Mr. President, regarding your Proclamation of Amnesty and Reconstruction (10% Plan) (December 08, 1863), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC036", "year": 1864, "month": 3, "label": "Address to the New…", "title": "Address to the New York Workingmen's Democratic Republican Association", "question": "Mr. President, regarding your Address to the New York Workingmen's Democratic Republican Association (March 21, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC063", "year": 1864, "month": 3, "label": "Letter to Michael…", "title": "Letter to Michael Hahn on Black Suffrage", "question": "Mr. President, regarding your Letter to Michael Hahn on Black Suffrage (March 13, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC013", "year": 1864, "month": 4, "label": "Letter to Albert G.…", "title": "Letter to Albert G. Hodges", "question": "Mr. President, regarding your Letter to Albert G. Hodges (April 04, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC014", "year": 1864, "month": 4, "label": "Address at Sanitary…", "title": "Address at Sanitary Fair Baltimore", "question": "Mr. President, regarding your Address at Sanitary Fair Baltimore (April 18, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC034", "year": 1864, "month": 4, "label": "Letter to General…", "title": "Letter to General Ulysses S. Grant", "question": "Mr. President, regarding your Letter to General Ulysses S. Grant (April 30, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC052", "year": 1864, "month": 6, "label": "Address at Sanitary…", "title": "Address at Sanitary Fair, Philadelphia", "question": "Mr. President, regarding your Address at Sanitary Fair, Philadelphia (June 16, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC064", "year": 1864, "month": 7, "label": "Speech on the…", "title": "Speech on the Wade-Davis Manifesto (Pocket Veto Message)", "question": "Mr. President, regarding your Speech on the Wade-Davis Manifesto (Pocket Veto Message) (July 08, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC035", "year": 1864, "month": 11, "label": "Letter to Mrs.…", "title": "Letter to Mrs. Lydia Bixby", "question": "Mr. President, regarding your Letter to Mrs. Lydia Bixby (November 21, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC050", "year": 1864, "month": 11, "label": "Response to a…", "title": "Response to a Serenade (on re-election, November 10, 1864)", "question": "Mr. President, regarding your Response to a Serenade (on re-election, November 10, 1864) (November 10, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC018", "year": 1864, "month": 12, "label": "Annual Message to…", "title": "Annual Message to Congress (Fourth)", "question": "Mr. President, regarding your Annual Message to Congress (Fourth) (December 06, 1864), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC065", "year": 1865, "month": 2, "label": "Speech on the…", "title": "Speech on the Thirteenth Amendment", "question": "Mr. President, regarding your Speech on the Thirteenth Amendment (February 01, 1865), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC015", "year": 1865, "month": 3, "label": "Second Inaugural…", "title": "Second Inaugural Address", "question": "Mr. President, regarding your Second Inaugural Address (March 04, 1865), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC030", "year": 1865, "month": 3, "label": "Order Establishing…", "title": "Order Establishing the Bureau of Refugees, Freedmen, and Abandoned Lands", "question": "Mr. President, regarding your Order Establishing the Bureau of Refugees, Freedmen, and Abandoned Lands (March 03, 1865), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC066", "year": 1865, "month": 3, "label": "Letter to Thurlow…", "title": "Letter to Thurlow Weed on the Second Inaugural", "question": "Mr. President, regarding your Letter to Thurlow Weed on the Second Inaugural (March 15, 1865), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC016", "year": 1865, "month": 4, "label": "Last Public Address", "title": "Last Public Address", "question": "Mr. President, regarding your Last Public Address (April 11, 1865), what was your core constitutional argument and why did you judge it necessary?"}, {"id": "DOC067", "year": 1865, "month": 4, "label": "Last Cabinet…", "title": "Last Cabinet Meeting Notes (April 14, 1865)", "question": "Mr. President, regarding your Last Cabinet Meeting Notes (April 14, 1865) (April 14, 1865), what was your core constitutional argument and why did you judge it necessary?"}];
 
 const LIFE_EVENTS = [
   { year:1809, label:'Born\n1809' },
